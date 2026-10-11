@@ -1,0 +1,2684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PedalPath — Rute Sepeda, Komunitas, Riwayat & Radar Sekitar</title>
+  <style>
+    :root{
+      --green:#176b45;
+      --green2:#24814f;
+      --green-dark:#0f492e;
+      --green-light:#2ecc71;
+      --pale:#e5f4e8;
+      --pale-hover:#d7eedb;
+      --bg:#f5f8f2;
+      --card-bg:#ffffff;
+      --text:#20352a;
+      --muted:#6b7c70;
+      --border:#e2eae0;
+      --shadow-sm:0 2px 8px rgba(0,0,0,0.05);
+      --shadow-md:0 6px 18px rgba(23,107,69,0.12);
+      --shadow-lg:0 14px 34px rgba(0,0,0,0.15);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+    button,input,select,textarea{font:inherit}
+    
+    /* ======== ANIMASI HOVER TOMBOL & ELEMEN INTERAKTIF ======== */
+    button, .btn, .pill, .fav, .nav-tab, .dm-icon-btn, .community-btn, .friend-action-btn, .profile-nav-btn, .action-btn {
+      cursor:pointer;
+      transition:all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position:relative;
+      user-select:none;
+    }
+    button:hover, .btn:hover {
+      transform:translateY(-2px);
+      box-shadow:0 6px 16px rgba(23,107,69,0.22);
+      filter:brightness(1.03);
+    }
+    button:active, .btn:active, .pill:active {
+      transform:translateY(1px) scale(0.98);
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+    .btn-green{background:var(--green);color:white;border:none}
+    .btn-green:hover{
+      background:var(--green2);
+      box-shadow:0 8px 20px rgba(23,107,69,0.32);
+      transform:translateY(-2px) scale(1.01);
+    }
+    .btn-light{background:#f1f6ee;color:var(--text);border:1px solid var(--border)}
+    .btn-light:hover{
+      background:#e5efe1;
+      border-color:#b9d1b6;
+      transform:translateY(-2px);
+    }
+    .pill{
+      border:1px solid #dbe6da;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:12px;
+      background:white;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+    }
+    .pill:hover{
+      background:#eef7ec;
+      border-color:#388b5b;
+      transform:translateY(-2px);
+      box-shadow:0 4px 10px rgba(0,0,0,0.07);
+    }
+    .pill.active{
+      background:#e0f2e5;
+      border-color:#4d9c6a;
+      color:var(--green);
+      font-weight:bold;
+      box-shadow:0 2px 8px rgba(36,129,79,0.15);
+    }
+    .pill.active:hover{
+      background:#d2ebd9;
+      transform:translateY(-2px);
+    }
+    .fav{
+      border:0;
+      background:transparent;
+      font-size:22px;
+      color:#819087;
+      padding:0 4px;
+      transition:transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s;
+    }
+    .fav:hover{
+      transform:scale(1.32) rotate(6deg);
+      color:#e11d48 !important;
+    }
+    .fav.favorited{
+      color:#e11d48;
+    }
+
+    /* Layout & Base */
+    .wrap{max-width:1120px;margin:auto;padding:0 16px}
+    .topbar{background:white;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{background:var(--green);color:white;padding:9px;border-radius:12px;font-size:22px;box-shadow:0 4px 10px rgba(23,107,69,0.2)}
+    .brand-name{font-size:21px;font-weight:850;letter-spacing:-.8px}
+    .brand-name span{color:var(--green2)}
+    .tagline{font-size:11px;color:var(--muted);margin-top:2px}
+    
+    /* Nav Tabs */
+    .nav-tabs{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+    .nav-tab{
+      border:0;background:transparent;padding:8px 12px;border-radius:10px;font-weight:700;font-size:12px;color:var(--muted);
+      display:flex;align-items:center;gap:5px;
+    }
+    .nav-tab:hover{background:#f1f6ee;color:var(--text);transform:translateY(-1px)}
+    .nav-tab.active{background:var(--pale);color:var(--green)}
+
+    /* IKON FOTO PROFIL DI TOPBAR */
+    .profile-nav-btn{
+      border:1px solid #d7e4d5;
+      background:#f8faf6;
+      border-radius:999px;
+      padding:4px 10px 4px 4px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .profile-nav-btn:hover{
+      background:#edf6eb;
+      border-color:#388b5b;
+      transform:translateY(-2px);
+      box-shadow:0 4px 12px rgba(23,107,69,0.18);
+    }
+    .profile-avatar-wrap{position:relative;width:34px;height:34px}
+    .profile-avatar-img{
+      width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--green);
+    }
+    .profile-status-dot{
+      position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;background:#22c55e;border:2px solid white;border-radius:50%;
+    }
+    .profile-info-brief{display:flex;flex-direction:column;text-align:left;line-height:1.2}
+    .profile-name{font-size:12px;font-weight:bold;color:var(--text)}
+    .profile-badge-mini{font-size:10px;color:var(--green);font-weight:700}
+    
+    .hero{
+      position:relative;overflow:hidden;
+      background:linear-gradient(120deg,#123f2c,#176b45 65%,#3c9864);
+      color:white;border-radius:23px;padding:27px;margin:18px 0 22px;
+      box-shadow:var(--shadow-md);
+    }
+    .eyebrow{font-size:11px;letter-spacing:2px;font-weight:bold;color:#bde8c8}
+    .hero h1{font-size:clamp(28px,5vw,42px);line-height:1.15;letter-spacing:-1.2px;margin:12px 0 10px;max-width:580px}
+    .hero p{font-size:14px;line-height:1.7;color:#e1f0e5;max-width:540px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .chip-hero{
+      background:#ffffff20;border:1px solid #ffffff35;border-radius:30px;padding:7px 13px;font-size:12px;
+      transition:all 0.2s;cursor:pointer;
+    }
+    .chip-hero:hover{background:#ffffff35;transform:translateY(-2px)}
+    .hero-bike{position:absolute;right:15px;bottom:-35px;font-size:150px;opacity:.13;transform:rotate(-12deg);pointer-events:none}
+    
+    .columns{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:20px}
+    .panel{background:white;border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+    h2{font-size:19px;margin:0 0 5px;font-weight:800}
+    .muted{color:var(--muted)}.sub{font-size:12px;line-height:1.6}
+    
+    label{display:block;font-size:12px;font-weight:700;margin:14px 0 6px}
+    .field{
+      width:100%;padding:11px 13px;border:1px solid #dce5da;border-radius:10px;background:#fff;color:var(--text);outline:none;
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    .field:focus{border-color:var(--green2);box-shadow:0 0 0 3px #25845422}
+    .filters{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 16px}
+    
+    /* ======== SLIDER ULTRA MULUS (SMOOTH SLIDER) ======== */
+    .slider-container{margin:12px 0 16px;background:#f9fbf8;border:1px solid #e1ebe0;padding:14px;border-radius:14px}
+    .slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .slider-val-badge{
+      font-size:13px;font-weight:800;color:var(--green);background:#e0f2e5;padding:4px 12px;border-radius:20px;border:1px solid #b7dfbe;
+      transition:transform 0.15s ease, background 0.2s;display:inline-flex;align-items:center;gap:4px;
+    }
+    .slider-track-wrap{position:relative;margin:8px 0}
+    .distance-slider{
+      -webkit-appearance:none;
+      width:100%;
+      height:8px;
+      border-radius:8px;
+      outline:none;
+      background:linear-gradient(to right, #176b45 0%, #176b45 100%, #e2ece0 100%, #e2ece0 100%);
+      cursor:pointer;
+      transition:background 0.05s linear;
+    }
+    /* Thumb Webkit */
+    .distance-slider::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:#176b45;
+      border:3px solid #ffffff;
+      box-shadow:0 3px 10px rgba(23,107,69,0.45);
+      cursor:pointer;
+      transition:transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, box-shadow 0.2s;
+    }
+    .distance-slider::-webkit-slider-thumb:hover{
+      transform:scale(1.28);
+      background:#228451;
+      box-shadow:0 5px 14px rgba(23,107,69,0.55);
+    }
+    .distance-slider::-webkit-slider-thumb:active{
+      transform:scale(1.15);
+      box-shadow:0 2px 6px rgba(23,107,69,0.6);
+    }
+    /* Thumb Firefox */
+    .distance-slider::-moz-range-thumb{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:#176b45;
+      border:3px solid #ffffff;
+      box-shadow:0 3px 10px rgba(23,107,69,0.45);
+      cursor:pointer;
+      transition:transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .distance-slider::-moz-range-thumb:hover{transform:scale(1.28)}
+    .slider-ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:0 2px;margin-top:6px;font-weight:600}
+    
+    /* ======== RUTE REKOMENDASI: TILE CARDS (4 TILE KE KANAN) ======== */
+    .route-rekomendasi-panel{
+      margin-top:20px;
+    }
+    .route-grid{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:16px;
+      margin-top:16px;
+    }
+    .route-grid.scroll-horizontal{
+      display:flex !important;
+      flex-direction:row !important;
+      overflow-x:auto;
+      padding-bottom:12px;
+      scroll-snap-type:x mandatory;
+      scrollbar-width:thin;
+      gap:16px;
+    }
+    .route-grid.scroll-horizontal .route{
+      flex:0 0 255px;
+      min-width:245px;
+      max-width:280px;
+      scroll-snap-align:start;
+    }
+    .route{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      background:white;
+      transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:12px;
+      box-shadow:var(--shadow-sm);
+      position:relative;
+      cursor:pointer;
+    }
+    .route:hover{
+      transform:translateY(-4px);
+      box-shadow:0 12px 28px rgba(23,107,69,0.13);
+      border-color:#5ba378;
+    }
+    .route.selected{
+      border:2px solid #238252;
+      background:#f4faf5;
+      box-shadow:0 8px 24px rgba(35,130,82,0.18);
+    }
+    .route-tile-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .route-tile-tags{
+      display:flex;
+      align-items:center;
+      gap:5px;
+      flex-wrap:wrap;
+    }
+    .type-tag{font-size:10px;font-weight:bold;color:#26794b;background:#e5f4e8;padding:3px 8px;border-radius:15px}
+    .type-tag.tag-olahraga{color:#b45309;background:#fef3c7}
+    .type-tag.tag-jelajah{color:#4338ca;background:#ede9fe}
+    .route-level-tag{font-size:10px;font-weight:700;color:#475569;background:#f1f5f9;padding:3px 7px;border-radius:10px}
+    .route-fav-btn{
+      background:#f8faf8;
+      border:1px solid #e0ebd2;
+      border-radius:50%;
+      width:32px;
+      height:32px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      font-size:14px;
+      transition:all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      flex-shrink:0;
+      padding:0;
+      line-height:1;
+      box-shadow:0 1px 4px rgba(0,0,0,0.04);
+    }
+    .route-fav-btn:hover{
+      transform:scale(1.18);
+      background:#fff5f7;
+      border-color:#f43f5e;
+    }
+    .route-fav-btn.active{
+      background:#fff1f2;
+      border-color:#fecdd3;
+    }
+    .route-banner{
+      background:linear-gradient(135deg, #eaf5ec, #d5ecdb);
+      border:1px solid #c4e4cc;
+      border-radius:14px;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin:2px 0;
+    }
+    .route.selected .route-banner{
+      background:linear-gradient(135deg, #d8f1df, #c2e6cb);
+      border-color:#a5d8b2;
+    }
+    .route-banner-icon{font-size:26px}
+    .route-banner-dist{
+      text-align:right;
+      line-height:1;
+    }
+    .route-banner-km{
+      font-size:21px;
+      font-weight:850;
+      color:var(--green);
+      letter-spacing:-0.5px;
+    }
+    .route-banner-unit{
+      font-size:10px;
+      font-weight:700;
+      color:#526b4f;
+      display:block;
+      margin-top:2px;
+      letter-spacing:0.5px;
+    }
+    .route-body{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex:1;
+    }
+    .route h3{
+      font-size:14px;
+      font-weight:750;
+      margin:0;
+      line-height:1.35;
+      color:#1d2939;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      min-height:38px;
+    }
+    .route-dest{
+      font-size:11px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin:0;
+    }
+    .route-meta{
+      font-size:11px;
+      color:#475467;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:#f8faf9;
+      padding:7px 10px;
+      border-radius:10px;
+      border:1px solid #edf2ed;
+      margin-top:2px;
+    }
+    .route-meta span{
+      display:inline-flex;
+      align-items:center;
+      gap:3px;
+      font-weight:600;
+      font-size:10.5px;
+    }
+    .route-actions{
+      margin-top:4px;
+    }
+    .route-actions .btn{
+      width:100%;
+      padding:9px 12px;
+      font-size:12px;
+      font-weight:700;
+      border-radius:10px;
+      text-align:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      transition:all 0.2s ease;
+    }
+    .btn-outline-green{
+      background:#f8faf8;
+      color:var(--green);
+      border:1px solid #c2dec8;
+    }
+    .btn-outline-green:hover{
+      background:#eef7f0;
+      border-color:var(--green);
+      color:var(--green);
+      transform:translateY(-2px);
+    }
+    @media(max-width:1024px){
+      .route-grid{grid-template-columns:repeat(3, 1fr)}
+    }
+    @media(max-width:768px){
+      .route-grid{grid-template-columns:repeat(2, 1fr)}
+    }
+    @media(max-width:520px){
+      .route-grid{grid-template-columns:1fr}
+    }
+    
+    /* Map Preview */
+    .map{
+      position:relative;height:245px;overflow:hidden;border-radius:14px;background-color:#eaf0e4;
+      background-image:linear-gradient(30deg,transparent 47%,#fff 48%,#fff 51%,transparent 52%),linear-gradient(120deg,transparent 44%,#fff 45%,#fff 48%,transparent 49%),linear-gradient(90deg,#d7e3d1 1px,transparent 1px),linear-gradient(#d7e3d1 1px,transparent 1px);
+      background-size:100% 100%,100% 100%,42px 42px,42px 42px;
+      box-shadow:inset 0 0 12px rgba(0,0,0,0.04);
+    }
+    .map svg{position:absolute;width:100%;height:100%;inset:0}
+    .map-label{
+      position:absolute;background:white;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:bold;
+      box-shadow:0 3px 10px rgba(0,0,0,0.12);max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .map-start{left:12px;top:12px}
+    .map-end{right:10px;bottom:11px}
+    .map-caption{font-size:12px;line-height:1.6;margin-top:12px;color:var(--muted)}
+    
+    .why-item{display:flex;gap:12px;margin-top:14px;align-items:flex-start}
+    .why-icon{font-size:22px;background:var(--pale);padding:6px;border-radius:10px;line-height:1}
+    .why-item b{font-size:13px}
+    .why-item p{font-size:12px;line-height:1.5;margin:3px 0 0;color:var(--muted)}
+    
+    /* Detail Panel */
+    .detail{margin-top:18px}
+    .detail-head{display:flex;align-items:start;justify-content:space-between;gap:10px}
+    .detail-type{font-size:11px;font-weight:bold;color:var(--green2);letter-spacing:0.5px}
+    .detail h2{font-size:22px;margin:6px 0}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:16px 0}
+    .stat{background:var(--bg);border-radius:12px;padding:12px;text-align:center}
+    .stat div{font-size:11px;color:var(--muted)}
+    .stat b{display:block;font-size:16px;margin-top:4px}
+    .safety{background:#f7f9f4;border-radius:12px;padding:13px;margin-bottom:15px;border-left:4px solid var(--green)}
+    .safety b{font-size:13px}
+    .safety p{font-size:12px;line-height:1.7;margin:6px 0 0;color:var(--muted)}
+    
+    /* ======== BAGIAN CHECKLIST SEBELUM GOWES (WARNA HIJAU PENUH) ======== */
+    .health-banner{background:linear-gradient(120deg,#eff9ee,#f8fbf4);border:1px solid #dcebd8;border-radius:15px;padding:15px;margin-top:14px}
+    .health-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+    .health-card{
+      border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff;
+      transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position:relative;
+    }
+    .health-card h3{font-size:14px;margin:0 0 6px}
+    .health-card p{font-size:12px;line-height:1.65;color:var(--muted);margin:0}
+    
+    /* SEMUA CHECKLIST CENTANG -> WARNA HIJAU AKTIF */
+    .checklist-card-active.all-completed{
+      background:linear-gradient(135deg, #ebfaef 0%, #d5f7dc 100%) !important;
+      border:2px solid #16a34a !important;
+      box-shadow:0 8px 25px rgba(22,163,74,0.22) !important;
+      transform:translateY(-2px);
+    }
+    .checklist-card-active.all-completed h3{color:#136c35}
+    .checklist-success-badge{
+      display:none;background:#16a34a;color:white;font-size:11px;font-weight:bold;
+      padding:4px 10px;border-radius:20px;box-shadow:0 3px 8px rgba(22,163,74,0.3);
+      animation:badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .checklist-card-active.all-completed .checklist-success-badge{display:inline-block}
+    @keyframes badgePop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+    
+    .checklist{display:grid;gap:8px;margin-top:12px}
+    .checkrow{
+      display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.5;
+      padding:7px 10px;border-radius:8px;transition:background 0.2s;cursor:pointer;
+    }
+    .checkrow:hover{background:#f3f8f1}
+    .checklist-card-active.all-completed .checkrow{background:rgba(255,255,255,0.65)}
+    .checklist-card-active.all-completed .checkrow:hover{background:rgba(255,255,255,0.9)}
+    .checkrow input{accent-color:var(--green);margin-top:2px;cursor:pointer;transform:scale(1.15)}
+    .check-progress-bar-wrap{
+      width:100%;height:7px;background:#e2ece0;border-radius:999px;margin-top:12px;overflow:hidden;
+    }
+    .check-progress-bar{
+      height:100%;background:var(--green);width:0%;border-radius:999px;
+      transition:width 0.3s ease, background-color 0.3s ease;
+    }
+    .checklist-card-active.all-completed .check-progress-bar{background:#16a34a}
+    
+    .water-count{font-size:27px;font-weight:800;color:var(--green);margin:8px 0}
+    .health-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+    .health-actions button{font-size:12px;padding:7px 12px}
+    .timer{font-size:28px;font-weight:850;letter-spacing:1px;margin:8px 0;color:var(--green)}
+    .health-disclaimer{font-size:11px;line-height:1.65;color:var(--muted);background:#f7f9f4;border-radius:10px;padding:12px;margin-top:14px}
+    
+    /* ======== FITUR 1: RIWAYAT RUTE PERJALANAN ======== */
+    .history-section{margin-top:18px}
+    .history-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+    .history-stat-card{
+      background:#f7faf5;border:1px solid #e1ebe0;border-radius:14px;padding:12px;text-align:center;
+    }
+    .history-stat-card span{font-size:11px;color:var(--muted)}
+    .history-stat-card b{display:block;font-size:18px;color:var(--green);margin-top:3px}
+    .history-list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+    .history-item{
+      background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;
+      display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+      transition:all 0.2s;box-shadow:var(--shadow-sm);
+    }
+    .history-item:hover{
+      border-color:#5ba378;transform:translateX(3px);box-shadow:var(--shadow-md);
+    }
+    .history-icon-box{
+      width:44px;height:44px;border-radius:12px;background:var(--pale);color:var(--green);
+      display:flex;align-items:center;justify-content:center;font-size:20px;
+    }
+    .history-main-info b{font-size:14px;display:block}
+    .history-meta{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:4px;flex-wrap:wrap}
+    .history-tag{
+      background:#f0fdf4;color:#166534;font-size:10px;font-weight:bold;padding:3px 8px;border-radius:12px;border:1px solid #bbf7d0;
+    }
+    .history-actions{display:flex;gap:6px;align-items:center}
+
+    /* ======== FITUR 2: MENCARI SESAMA PENGGUNA / GOWESER DI SEKITAR (RADAR) ======== */
+    .radar-section{margin-top:18px}
+    .radar-container{
+      display:grid;grid-template-columns:320px 1fr;gap:20px;margin-top:14px;align-items:center;
+    }
+    .radar-visual-card{
+      background:linear-gradient(145deg, #0f3824, #176b45);border-radius:18px;padding:24px;color:white;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;
+      box-shadow:var(--shadow-md);height:300px;
+    }
+    .radar-screen{
+      width:200px;height:200px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);
+      position:relative;display:flex;align-items:center;justify-content:center;
+    }
+    .radar-screen::before{
+      content:'';position:absolute;width:130px;height:130px;border-radius:50%;border:1px dashed rgba(255,255,255,0.3);
+    }
+    .radar-screen::after{
+      content:'';position:absolute;width:60px;height:60px;border-radius:50%;border:1px solid rgba(255,255,255,0.4);
+    }
+    .radar-sweep{
+      position:absolute;width:100%;height:100%;border-radius:50%;
+      background:conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgba(74,222,128,0.4) 360deg);
+      animation:radarSpin 3s linear infinite;
+    }
+    @keyframes radarSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .radar-center-dot{
+      width:14px;height:14px;background:#22c55e;border:3px solid white;border-radius:50%;position:relative;z-index:2;box-shadow:0 0 10px #22c55e;
+    }
+    .radar-blip{
+      position:absolute;width:10px;height:10px;background:#38bdf8;border:2px solid white;border-radius:50%;box-shadow:0 0 8px #38bdf8;
+      animation:blipPulse 1.8s infinite;
+    }
+    @keyframes blipPulse{0%,100%{transform:scale(1);opacity:0.9}50%{transform:scale(1.4);opacity:1}}
+    
+    .nearby-cyclists-list{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;padding-right:4px}
+    .nearby-cyclist-card{
+      background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 14px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;transition:all 0.2s;
+    }
+    .nearby-cyclist-card:hover{border-color:#5ba378;transform:translateX(3px);background:#fbfdfa}
+    .nearby-cyclist-left{display:flex;align-items:center;gap:10px}
+    .nearby-avatar{
+      width:38px;height:38px;border-radius:50%;background:#e0f2fe;color:#0284c7;font-weight:bold;
+      display:flex;align-items:center;justify-content:center;font-size:15px;position:relative;
+    }
+    .nearby-badge-dist{
+      font-size:11px;color:var(--green);font-weight:bold;background:#e5f4e8;padding:3px 8px;border-radius:10px;
+    }
+
+    /* ======== FITUR 3: MODAL PROFIL & STATISTIK GOWES LENGKAP ======== */
+    .profile-modal-overlay{
+      position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);
+      z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .profile-modal-card{
+      background:white;border-radius:22px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+      box-shadow:var(--shadow-lg);border:1px solid var(--border);animation:modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes modalPop{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}
+    .profile-banner{
+      height:100px;background:linear-gradient(135deg, #123f2c, #176b45 70%, #308a58);
+      position:relative;border-radius:21px 21px 0 0;padding:14px;display:flex;justify-content:flex-end;
+    }
+    .profile-modal-close{
+      background:rgba(255,255,255,0.25);border:none;color:white;width:30px;height:30px;border-radius:50%;font-size:14px;
+      display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;
+    }
+    .profile-modal-close:hover{background:rgba(255,255,255,0.45)}
+    .profile-header-body{padding:0 22px 18px;position:relative;margin-top:-45px}
+    .profile-photo-lg-wrap{position:relative;width:84px;height:84px;margin-bottom:8px}
+    .profile-photo-lg{
+      width:100%;height:100%;border-radius:50%;object-fit:cover;border:4px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.18);
+    }
+    .profile-status-online-lg{
+      position:absolute;bottom:3px;right:3px;width:16px;height:16px;background:#22c55e;border:3px solid white;border-radius:50%;
+    }
+    .profile-user-titles{margin-bottom:14px}
+    .profile-user-titles h3{margin:0;font-size:20px}
+    .profile-user-titles span{font-size:12px;color:var(--muted)}
+    
+    /* Grid Statistik Profil */
+    .profile-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .profile-stat-box{
+      background:#f6faf4;border:1px solid #dce8da;border-radius:14px;padding:12px;text-align:center;
+    }
+    .profile-stat-box span{font-size:11px;color:var(--muted);display:block}
+    .profile-stat-box b{font-size:18px;color:var(--green);margin-top:3px;display:block}
+    
+    .last-ride-banner{
+      background:linear-gradient(135deg, #eaf6ec, #daf0de);border:1px solid #bde2c3;border-radius:14px;padding:13px;
+      margin-bottom:16px;display:flex;align-items:center;gap:12px;
+    }
+    .last-ride-banner-icon{font-size:28px}
+    .profile-section-title{font-size:13px;font-weight:bold;margin:12px 0 8px;color:var(--text)}
+    .badges-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+    .badge-chip{
+      background:#f0f5ee;border:1px solid #d4e2d2;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:bold;color:var(--green);
+    }
+
+    /* ======== KOMUNITAS & FEED ======== */
+    .community-section{margin-top:18px}
+    .community-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:18px;margin-top:14px}
+    .create-post-card{
+      background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;
+      box-shadow:var(--shadow-sm);
+    }
+    .create-post-card textarea{
+      width:100%;border:1px solid #dce5da;border-radius:10px;padding:10px;font-size:13px;resize:none;outline:none;
+      transition:border-color 0.2s;
+    }
+    .create-post-card textarea:focus{border-color:var(--green)}
+    .post-actions-bar{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    
+    .post-feed{display:flex;flex-direction:column;gap:14px}
+    .post-card{
+      background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;
+      box-shadow:var(--shadow-sm);transition:all 0.2s;
+    }
+    .post-card:hover{box-shadow:var(--shadow-md);border-color:#b8d6bf}
+    .post-author{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .author-avatar{
+      width:38px;height:38px;border-radius:50%;background:#e0f2e5;color:var(--green);
+      display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:15px;
+    }
+    .author-info b{font-size:13px;display:block}
+    .author-info span{font-size:11px;color:var(--muted)}
+    .post-badge{
+      margin-left:auto;font-size:11px;background:#f0f7ee;color:var(--green);padding:4px 9px;border-radius:12px;font-weight:bold;
+    }
+    .post-content{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:12px}
+    .post-footer{display:flex;gap:14px;align-items:center;border-top:1px solid #f0f4ee;padding-top:10px}
+    .post-btn{
+      border:none;background:transparent;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;
+    }
+    .post-btn:hover{background:#f1f7ef;color:var(--green);transform:translateY(-1px)}
+    .post-btn.liked{color:#e11d48;font-weight:bold}
+    
+    /* Friends Card */
+    .friends-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm)}
+    .friend-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .friend-item{
+      display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:12px;
+      background:#fcfdfb;border:1px solid #f0f4ee;transition:all 0.2s;
+    }
+    .friend-item:hover{background:#f4f9f2;border-color:#c8e4ce;transform:translateX(2px)}
+    .friend-profile{display:flex;align-items:center;gap:10px}
+    .avatar-wrapper{position:relative}
+    .avatar{
+      width:38px;height:38px;border-radius:50%;background:var(--pale);color:var(--green);
+      display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;
+    }
+    .status-dot{
+      position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;border:2px solid white;
+    }
+    .status-dot.online{background:#22c55e}
+    .status-dot.riding{background:#f59e0b}
+    .status-dot.offline{background:#94a3b8}
+    .friend-detail b{font-size:13px;display:block}
+    .friend-detail span{font-size:11px;color:var(--muted)}
+    .friend-actions{display:flex;gap:6px}
+    .friend-dm-btn{
+      border:none;background:var(--pale);color:var(--green);font-size:11px;font-weight:bold;
+      padding:6px 10px;border-radius:8px;display:flex;align-items:center;gap:4px;
+    }
+    .friend-dm-btn:hover{background:var(--green);color:white}
+    
+    /* Event / Mabar Card */
+    .event-card{
+      background:linear-gradient(135deg,#f4faf2,#eef8ec);border:1px solid #cce5d2;border-radius:16px;padding:15px;margin-top:14px;
+    }
+    .event-card h3{font-size:14px;margin:0 0 6px;color:var(--green)}
+    
+    /* ======== INSTAGRAM-STYLE DIRECT MESSAGE PILL (DI KANAN BAWAH) ======== */
+    .ig-dm-pill-container{
+      position:fixed;
+      bottom:22px;
+      right:24px;
+      z-index:9999;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:10px;
+    }
+    .ig-dm-pill{
+      background:linear-gradient(135deg, #176b45 0%, #10482e 100%);
+      color:white;
+      border:none;
+      border-radius:999px;
+      padding:10px 18px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      box-shadow:0 8px 24px rgba(18,63,44,0.35);
+      font-weight:bold;
+      font-size:13px;
+      cursor:pointer;
+      transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .ig-dm-pill:hover{
+      transform:translateY(-3px) scale(1.03);
+      box-shadow:0 12px 28px rgba(18,63,44,0.45);
+      background:linear-gradient(135deg, #1b7a4f 0%, #125134 100%);
+    }
+    .ig-dm-pill:active{
+      transform:translateY(1px) scale(0.98);
+    }
+    .ig-dm-pill-avatars{
+      display:flex;align-items:center;
+    }
+    .ig-mini-avatar{
+      width:22px;height:22px;border-radius:50%;border:2px solid #176b45;display:flex;align-items:center;justify-content:center;
+      font-size:10px;font-weight:bold;background:#ffffff30;color:white;
+    }
+    .ig-dm-badge{
+      background:#e11d48;color:white;font-size:10px;font-weight:bold;padding:2px 7px;border-radius:10px;
+    }
+    
+    /* Floating Chat Drawer Window */
+    .ig-dm-window{
+      width:340px;
+      height:460px;
+      background:white;
+      border-radius:18px;
+      border:1px solid #dce5da;
+      box-shadow:0 14px 40px rgba(0,0,0,0.22);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      animation:slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideUp{from{transform:translateY(25px);opacity:0}to{transform:translateY(0);opacity:1}}
+    
+    .ig-dm-header{
+      background:#ffffff;
+      border-bottom:1px solid var(--border);
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .ig-dm-header-title{
+      display:flex;align-items:center;gap:8px;font-weight:bold;font-size:14px;
+    }
+    .dm-icon-btn{
+      border:none;background:transparent;font-size:16px;color:var(--muted);padding:4px 6px;border-radius:8px;cursor:pointer;
+    }
+    .dm-icon-btn:hover{background:#f1f6ee;color:var(--text);transform:scale(1.1)}
+    
+    .ig-dm-body{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+    
+    /* DM Threads List (Inbox) */
+    .dm-threads-view{flex:1;overflow-y:auto;padding:8px}
+    .dm-thread-item{
+      display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;transition:background 0.2s;
+    }
+    .dm-thread-item:hover{background:#f3f8f1}
+    .dm-thread-item.active{background:#e8f5ec}
+    .dm-thread-content{flex:1;min-width:0}
+    .dm-thread-header{display:flex;justify-content:space-between;align-items:center}
+    .dm-thread-header b{font-size:13px}
+    .dm-thread-header span{font-size:10px;color:var(--muted)}
+    .dm-thread-msg{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+    .dm-unread-dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+    
+    /* Active DM Chat Screen */
+    .dm-chat-view{flex:1;display:flex;flex-direction:column;background:#fafcf9;overflow:hidden}
+    .dm-chat-messages{
+      flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;
+    }
+    .dm-bubble{
+      max-width:80%;padding:9px 12px;border-radius:14px;font-size:12px;line-height:1.45;
+      animation:bubbleFade 0.2s ease-out;
+    }
+    @keyframes bubbleFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .dm-bubble.incoming{
+      align-self:flex-start;background:white;color:var(--text);border:1px solid #e2ece0;border-bottom-left-radius:3px;
+    }
+    .dm-bubble.outgoing{
+      align-self:flex-end;background:var(--green);color:white;border-bottom-right-radius:3px;
+    }
+    .dm-typing{
+      font-size:11px;color:var(--muted);font-style:italic;align-self:flex-start;padding:2px 6px;
+    }
+    .dm-quick-prompts{
+      display:flex;gap:5px;overflow-x:auto;padding:6px 10px;background:#f0f5ee;border-top:1px solid #e5ede2;scrollbar-width:none;
+    }
+    .dm-quick-prompts button{
+      border:1px solid #cde0d2;background:white;padding:4px 8px;border-radius:12px;font-size:10px;white-space:nowrap;color:var(--text);
+    }
+    .dm-quick-prompts button:hover{background:var(--pale);border-color:var(--green)}
+    
+    .dm-input-area{
+      padding:10px;background:white;border-top:1px solid var(--border);display:flex;gap:7px;align-items:center;
+    }
+    .dm-input-area input{
+      flex:1;border:1px solid #dbe6da;border-radius:20px;padding:8px 12px;font-size:12px;outline:none;
+    }
+    .dm-input-area input:focus{border-color:var(--green)}
+    .dm-send-btn{
+      background:var(--green);color:white;border:none;border-radius:50%;width:32px;height:32px;
+      display:flex;align-items:center;justify-content:center;font-size:13px;padding:0;
+    }
+    .dm-send-btn:hover{background:var(--green2)}
+    
+    /* Utilities */
+    .hide{display:none!important}
+    .error{font-size:12px;color:#b42318;margin-top:9px}
+    .empty{text-align:center;padding:25px 8px}
+    .empty .emoji{font-size:32px}
+    .empty h3{margin:8px 0}
+    .note{font-size:10px;line-height:1.6;margin-top:13px;color:var(--muted)}
+    footer{text-align:center;color:#718073;font-size:11px;padding:28px 8px 30px;line-height:1.8}
+    
+    @media(max-width:768px){
+      .columns{grid-template-columns:1fr;gap:0}
+      .community-grid{grid-template-columns:1fr}
+      .route-grid{grid-template-columns:repeat(2,1fr)}
+      .radar-container{grid-template-columns:1fr}
+      .history-summary{grid-template-columns:repeat(2,1fr)}
+      .history-item{grid-template-columns:1fr;gap:8px}
+      .hero-bike{right:-25px;font-size:115px}
+      .hero{padding:23px 19px}
+      .panel{padding:16px}
+      .ig-dm-window{width:calc(100vw - 32px);right:16px;bottom:75px}
+      .ig-dm-pill-container{right:16px;bottom:16px}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .profile-stats-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar Header -->
+  <header class="topbar">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo">🚲</div>
+        <div>
+          <div class="brand-name">Pedal<span>Path</span></div>
+          <div class="tagline">Temukan rute, riwayat & sesama pesepeda.</div>
+        </div>
+      </div>
+      
+      <!-- Nav Tabs: Rute, Riwayat, Radar Sekitar, Komunitas, Kebugaran, Favorit -->
+      <nav class="nav-tabs" aria-label="Navigasi Utama">
+        <button id="navRoutes" class="nav-tab active">🗺️ Rute</button>
+        <button id="navHistory" class="nav-tab">📜 Riwayat Gowes</button>
+        <button id="navRadar" class="nav-tab">📡 Pesepeda Sekitar</button>
+        <button id="navCommunity" class="nav-tab">👥 Komunitas</button>
+        <button id="navHealth" class="nav-tab">💚 Kebugaran</button>
+        <button id="favNav" class="btn btn-light" style="font-size:12px;padding:7px 11px">♡ Favorit <span id="favCount">2</span></button>
+      </nav>
+
+      <!-- Tombol Ikon Foto Profil -->
+      <button id="profileBtn" class="profile-nav-btn" title="Buka Profil & Statistik Gowes">
+        <div class="profile-avatar-wrap">
+          <svg class="profile-avatar-img default-avatar-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="16" fill="#e2e8f0"/>
+            <circle cx="16" cy="11.5" r="5" fill="#94a3b8"/>
+            <path d="M6 26.5C6 21.5 10.5 19 16 19C21.5 19 26 21.5 26 26.5" fill="#94a3b8"/>
+          </svg>
+          <span class="profile-status-dot"></span>
+        </div>
+        <div class="profile-info-brief">
+          <span class="profile-name">Prototype</span>
+          <span class="profile-badge-mini">348 km · Pro</span>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Hero Banner -->
+    <section class="hero">
+      <div class="eyebrow">YOUR NEXT RIDE STARTS HERE</div>
+      <h1>Bingung mau gowes ke mana?</h1>
+      <p>Jelajahi rute dari 5 km hingga 50 km, lacak riwayat perjalananmu, temukan sesama pesepeda di sekitar, dan terhubung bersama komunitas!</p>
+      <div class="chips">
+        <span class="chip-hero" data-filter-chip="Santai">🌿 Santai</span>
+        <span class="chip-hero" data-filter-chip="Olahraga">💪 Olahraga</span>
+        <span class="chip-hero" data-filter-chip="Jelajah">🗺️ Jelajah</span>
+        <span class="chip-hero" data-filter-chip="all">✨ Semua Rute (50 km)</span>
+      </div>
+      <div class="hero-bike" aria-hidden="true">🚴</div>
+    </section>
+
+    <!-- SECTION 1: EKSPLORASI RUTE -->
+    <div id="routeSection">
+      <div class="columns">
+        <section>
+          <div class="panel">
+            <h2>📍 Rencanakan gowesmu</h2>
+            <p class="muted sub">Tentukan area, jenis gowes, dan rentang jarak perjalanan maksimal.</p>
+            
+            <form id="routeForm">
+              <label for="start">Lokasi awal</label>
+              <input id="start" class="field" placeholder="Contoh: Alun-Alun Surabaya / Monas" value="Surabaya" required>
+              
+              <label for="destination">Tujuan (opsional)</label>
+              <input id="destination" class="field" placeholder="Kosongkan untuk mencari inspirasi rute sekitar">
+              
+              <label>Pilih jenis gowes</label>
+              <div id="typeFilters" class="filters">
+                <button type="button" class="pill active" data-type="all">Semua rute</button>
+                <button type="button" class="pill" data-type="Santai">🌿 Santai</button>
+                <button type="button" class="pill" data-type="Olahraga">💪 Olahraga</button>
+                <button type="button" class="pill" data-type="Jelajah">🗺️ Jelajah</button>
+              </div>
+              
+              <!-- SLIDER ULTRA MULUS DARI 5 KM HINGGA 50 KM -->
+              <div class="slider-container">
+                <div class="slider-header">
+                  <label for="distanceRange" style="margin:0;font-size:12px;font-weight:700">Jarak perjalanan maksimal</label>
+                  <span id="distanceBadge" class="slider-val-badge">Maksimal: 50 km</span>
+                </div>
+                <div class="slider-track-wrap">
+                  <input type="range" id="distanceRange" class="distance-slider" min="5" max="50" step="1" value="50" aria-label="Slider jarak maksimal">
+                </div>
+                <div class="slider-ticks">
+                  <span>5 km</span>
+                  <span>15 km</span>
+                  <span>25 km</span>
+                  <span>35 km</span>
+                  <span>50 km</span>
+                </div>
+              </div>
+
+              <label for="distance">Pilihan cepat jarak</label>
+              <select id="distance" class="field">
+                <option value="5">5 km — Sangat dekat & santai</option>
+                <option value="10">10 km — Jarak pendek kota</option>
+                <option value="15">15 km — Jarak menengah pemula</option>
+                <option value="20">20 km — Gowes reguler</option>
+                <option value="25">25 km — Latihan kebugaran</option>
+                <option value="30">30 km — Menengah jauh</option>
+                <option value="40">40 km — Jarak jauh (endurance)</option>
+                <option value="50" selected>50 km — Jarak maksimal (Gran Fondo)</option>
+              </select>
+              
+              <button type="submit" class="btn btn-green" style="width:100%;margin-top:16px;padding:12px">🔎 Temukan Rute Sesuai Pilihan</button>
+              <p id="formError" class="error hide"></p>
+            </form>
+          </div>
+        </section>
+
+        <section class="rightcol">
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px">
+              <div>
+                <h2>Peta perjalanan</h2>
+                <p class="muted sub">Pratinjau ilustrasi rute interaktif</p>
+              </div>
+              <span style="font-size:10px;color:var(--green);background:var(--pale);padding:5px 9px;border-radius:20px;font-weight:bold">● Interactive</span>
+            </div>
+
+            <div id="map" class="map">
+              <svg viewBox="0 0 360 235" preserveAspectRatio="none" aria-label="Ilustrasi rute">
+                <path d="M-10 195 Q50 170 90 120 T190 108 T275 45 T370 55" fill="none" stroke="#fff" stroke-width="13"/>
+                <path id="mapRoute" d="M40 183 Q70 165 100 128 T190 108 T270 60" fill="none" stroke="#228451" stroke-width="5" stroke-linecap="round" stroke-dasharray="8 5"/>
+                <circle cx="40" cy="183" r="8" fill="#176b45" stroke="#fff" stroke-width="3"/>
+                <circle cx="270" cy="60" r="8" fill="#ed9c35" stroke="#fff" stroke-width="3"/>
+              </svg>
+              <div class="map-label map-start">📍 <span id="mapStart">Surabaya</span></div>
+              <div class="map-label map-end">🏁 <span id="mapEndLabel">Tujuan rute</span></div>
+              <div style="position:absolute;left:16%;top:43%;font-size:10px;color:#526b4f;transform:rotate(-15deg);font-weight:bold">Jalur sepeda 🚴</div>
+              <div style="position:absolute;left:50%;top:15%;font-size:10px;color:#526b4f;font-weight:bold">Taman & Rest Point 🌳</div>
+            </div>
+            <div id="mapNote" class="map-caption">Klik salah satu rute untuk melihat ilustrasi jalur di peta.</div>
+          </div>
+
+          <div class="panel">
+            <h2>Kenapa PedalPath?</h2>
+            <div class="why-item">
+              <span class="why-icon">🧭</span>
+              <div>
+                <b>Rute Beragam dari 5 km s.d 50 km</b>
+                <p>Dari santai keliling taman hingga endurance touring jarak jauh.</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <span class="why-icon">📡</span>
+              <div>
+                <b>Radar Pesepeda Sekitar</b>
+                <p>Deteksi sesama pegowes di sekitarmu secara langsung dan ajak mabar.</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <span class="why-icon">📜</span>
+              <div>
+                <b>Riwayat & Statistik Gowes</b>
+                <p>Catat setiap kilometer perjalanan dan pantau progres kesehatanmu.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- RUTE REKOMENDASI (LEBAR PENUH: 4 TILE KE KANAN) -->
+      <section class="panel route-rekomendasi-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div>
+            <h2>Rute rekomendasi</h2>
+            <p class="muted sub">Inspirasi gowes variatif (5 km hingga 50 km)</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button id="layoutTileBtn" type="button" class="pill active" title="Tampilan Kolom Grid" style="padding:4px 9px;font-size:11px">⊞ Grid</button>
+            <button id="layoutScrollBtn" type="button" class="pill" title="Tampilan Geser ke Samping" style="padding:4px 9px;font-size:11px">⇄ Scroll Samping</button>
+            <span id="resultCount" class="muted sub" style="margin-left:4px">12 rute</span>
+          </div>
+        </div>
+
+        <div id="routeList" class="route-grid"></div>
+
+        <div id="emptyState" class="empty hide">
+          <div class="emoji">🧭</div>
+          <h3>Belum ada rute yang cocok</h3>
+          <p class="muted sub">Coba geser slider ke kanan untuk memperluas jangkauan jarak.</p>
+          <button id="resetFilters" class="pill" style="margin-top:12px">Reset filter (50 km)</button>
+        </div>
+
+        <p class="note">Catatan: Rute di bawah adalah rekomendasi terkurasi dengan data demonstrasi visual, bukan navigasi GPS turn-by-turn.</p>
+      </section>
+    </div>
+
+    <!-- DETAIL PANEL MODAL/SECTION -->
+    <section id="detailPanel" class="panel detail hide">
+      <div class="detail-head">
+        <div>
+          <div id="detailType" class="detail-type"></div>
+          <h2 id="detailName"></h2>
+          <p id="detailDesc" class="muted sub"></p>
+        </div>
+        <button id="closeDetail" class="pill" aria-label="Tutup detail">✕ Tutup</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div>Jarak Rute</div><b id="detailDistance">5 km</b></div>
+        <div class="stat"><div>Estimasi Waktu</div><b id="detailTime">25 menit</b></div>
+        <div class="stat"><div>Tingkat Kesulitan</div><b id="detailLevel">Mudah</b></div>
+        <div class="stat"><div>Elevasi</div><b id="detailElevation">+25 m</b></div>
+      </div>
+      <div class="safety">
+        <b>Saran sebelum berangkat</b>
+        <p>Pastikan tekanan ban pas, gunakan helm berstandar, bawa cairan hidrasi yang cukup, dan patuhi rambu lalu lintas serta keselamatan pengguna jalan lain.</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px">
+        <button id="detailFav" class="btn btn-green">♡ Simpan favorit</button>
+        <button id="shareRoute" class="pill">📋 Salin info rute</button>
+        <button id="ajakTemanBtn" class="pill">✉️ Ajak teman gowes di DM</button>
+      </div>
+      <p id="actionMessage" class="muted sub" style="margin-top:10px"></p>
+    </section>
+
+    <!-- ======== SECTION 2: RIWAYAT RUTE PERJALANAN ======== -->
+    <section id="historySection" class="panel history-section">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="detail-type">ACTIVITY HISTORY</div>
+          <h2 style="font-size:22px;margin-top:4px">Riwayat Rute Perjalanan</h2>
+          <p class="muted sub">Daftar perjalanan gowes yang telah kamu selesaikan beserta statistik aktivitasnya.</p>
+        </div>
+        <button id="addNewHistoryBtn" class="btn btn-green" style="padding:8px 14px;font-size:12px">
+          + Simpan Aktivitas Baru
+        </button>
+      </div>
+
+      <!-- Ringkasan Statistik Riwayat -->
+      <div class="history-summary">
+        <div class="history-stat-card">
+          <span>Total Jarak Riwayat</span>
+          <b id="histTotalDist">348.5 km</b>
+        </div>
+        <div class="history-stat-card">
+          <span>Total Aktivitas</span>
+          <b id="histTotalRides">14 Gowes</b>
+        </div>
+        <div class="history-stat-card">
+          <span>Waktu Bergerak</span>
+          <b id="histTotalHours">19j 24m</b>
+        </div>
+        <div class="history-stat-card">
+          <span>Total Kalori</span>
+          <b id="histTotalCalories">8.420 kkal</b>
+        </div>
+      </div>
+
+      <!-- Daftar Riwayat -->
+      <div class="history-list" id="historyListContainer">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- ======== SECTION 3: MENCARI SESAMA PESE PEDA DI SEKITAR (RADAR) ======== -->
+    <section id="radarSection" class="panel radar-section">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="detail-type">NEARBY CYCLIST RADAR</div>
+          <h2 style="font-size:22px;margin-top:4px">Cari Sesama Pesepeda di Sekitar</h2>
+          <p class="muted sub">Temukan goweser aktif di radius lokasimu secara real-time untuk mabar atau saling menyapa.</p>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:12px;font-weight:bold;color:var(--muted)">Radius:</span>
+          <button class="pill active" data-radius="3">3 km</button>
+          <button class="pill" data-radius="5">5 km</button>
+          <button class="pill" data-radius="10">10 km</button>
+          <button id="radarScanBtn" class="btn btn-green" style="padding:6px 12px;font-size:11px">🔄 Pindai Ulang</button>
+        </div>
+      </div>
+
+      <div class="radar-container">
+        <!-- Visual Radar Animation -->
+        <div class="radar-visual-card">
+          <div class="radar-screen">
+            <div class="radar-sweep"></div>
+            <div class="radar-center-dot" title="Posisi Anda"></div>
+            <!-- Nearby Blips -->
+            <div class="radar-blip" style="top:25%;left:65%" title="Budi Pratama (0.4 km)"></div>
+            <div class="radar-blip" style="top:70%;left:30%" title="Dian Anggraini (1.2 km)"></div>
+            <div class="radar-blip" style="top:38%;left:22%" title="Fajar Ramadhan (2.1 km)"></div>
+            <div class="radar-blip" style="top:80%;left:75%" title="Komunitas CFD (2.8 km)"></div>
+          </div>
+          <span style="margin-top:14px;font-size:12px;letter-spacing:1px;font-weight:bold;color:#a3e635">
+            ● 4 PESE PEDA TERDETEKSI DI SEKITAR
+          </span>
+        </div>
+
+        <!-- Daftar Pesepeda Terdeteksi -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <b style="font-size:13px">Pesepeda Aktif Terdekat</b>
+            <span class="muted sub" id="radarStatusText">Diperbarui beberapa detik lalu</span>
+          </div>
+          <div class="nearby-cyclists-list" id="nearbyCyclistsList">
+            <!-- Dynamic items rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: KOMUNITAS & FRIENDLIST -->
+    <section id="communitySection" class="panel community-section">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="detail-type">CYCLING COMMUNITY</div>
+          <h2 style="font-size:22px;margin-top:4px">Komunitas & Teman Gowes</h2>
+          <p class="muted sub">Bagikan momen perjalananmu, temukan rekan gowes (mabar), dan kirim pesan langsung!</p>
+        </div>
+        <span style="background:var(--pale);color:var(--green);padding:7px 12px;border-radius:20px;font-size:12px;font-weight:bold">
+          👥 1.420 Pesepeda Bergabung
+        </span>
+      </div>
+
+      <div class="community-grid">
+        <!-- Kolom Kiri: Feed Postingan & Buat Postingan -->
+        <div>
+          <div class="create-post-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div class="author-avatar" style="background:#176b45;color:white">Saya</div>
+              <div>
+                <b style="font-size:13px">Prototype</b>
+                <span style="font-size:11px;color:var(--muted)">Bagikan update gowes atau ajak teman</span>
+              </div>
+            </div>
+            <textarea id="postInput" rows="2" placeholder="Tulis cerita gowes, rekomendasi jalur, atau ajak mabar pagi ini..."></textarea>
+            <div class="post-actions-bar">
+              <div style="display:flex;gap:6px">
+                <button type="button" class="pill" id="addRouteTagBtn" style="padding:5px 10px;font-size:11px">📍 Tag Rute</button>
+                <button type="button" class="pill" id="addPhotoSimBtn" style="padding:5px 10px;font-size:11px">📷 Foto</button>
+              </div>
+              <button type="button" id="publishPostBtn" class="btn btn-green" style="padding:7px 15px;font-size:12px">Kirim Cerita</button>
+            </div>
+          </div>
+
+          <div class="post-feed" id="postFeedList">
+            <!-- Post Item 1 -->
+            <article class="post-card">
+              <div class="post-author">
+                <div class="author-avatar">RP</div>
+                <div class="author-info">
+                  <b>Rian Pratama</b>
+                  <span>35 menit lalu · Surabaya Barat</span>
+                </div>
+                <span class="post-badge">🏅 25 km Selesai</span>
+              </div>
+              <p class="post-content">
+                Selesai coba "Tantangan Interval Speed 25 km" pagi ini. Aspal mulus banget dan sejuk sebelum jam 7. Rekomendasi buat yang mau melatih kadensi! Siapa mau gabung akhir pekan nanti? 🚴💨
+              </p>
+              <div class="post-footer">
+                <button class="post-btn" data-like-btn><span class="like-heart">♥</span> <span class="like-num">24</span> Suka</button>
+                <button class="post-btn" data-comment-btn>💬 8 Komentar</button>
+                <button class="post-btn" data-share-post-btn>↗ Bagikan</button>
+              </div>
+            </article>
+
+            <!-- Post Item 2 -->
+            <article class="post-card">
+              <div class="post-author">
+                <div class="author-avatar" style="background:#e0f2fe;color:#0284c7">SN</div>
+                <div class="author-info">
+                  <b>Sarah Nabila</b>
+                  <span>2 jam lalu · Kenjeran Coastal</span>
+                </div>
+                <span class="post-badge" style="background:#e0f2fe;color:#0369a1">🌿 Gowes Santai</span>
+              </div>
+              <p class="post-content">
+                Checklist sebelum gowes warna hijau semua, langsung cus ke Pesisir Pantai Kenjeran. Angin lautnya seger banget, plus mampir sarapan lontong kupang legendaris! Jangan lupa bawa air minum minimal 2 botol yaa.
+              </p>
+              <div class="post-footer">
+                <button class="post-btn" data-like-btn><span class="like-heart">♥</span> <span class="like-num">42</span> Suka</button>
+                <button class="post-btn" data-comment-btn>💬 14 Komentar</button>
+                <button class="post-btn" data-share-post-btn>↗ Bagikan</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Kolom Kanan: Friendlist & Event Mabar -->
+        <div>
+          <!-- Daftar Teman (Friendlist) -->
+          <div class="friends-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h3 style="margin:0 0 3px;font-size:15px">Daftar Teman Gowes</h3>
+                <span class="muted sub">Teman aktif & rekan sefrekuensi</span>
+              </div>
+              <span id="onlineFriendsCount" style="font-size:11px;background:#e5f4e8;color:var(--green);padding:3px 8px;border-radius:12px;font-weight:bold">3 Online</span>
+            </div>
+
+            <div class="friend-list" id="friendListContainer">
+              <!-- Friend 1 -->
+              <div class="friend-item" data-friend-name="Ardi Wijaya" data-friend-avatar="AW" data-friend-status="online">
+                <div class="friend-profile">
+                  <div class="avatar-wrapper">
+                    <div class="avatar">AW</div>
+                    <span class="status-dot online" title="Online"></span>
+                  </div>
+                  <div class="friend-detail">
+                    <b>Ardi Wijaya</b>
+                    <span>🟢 Online · 32 km minggu ini</span>
+                  </div>
+                </div>
+                <div class="friend-actions">
+                  <button class="friend-dm-btn" data-open-dm="Ardi Wijaya" title="Kirim Pesan">💬 Chat</button>
+                </div>
+              </div>
+
+              <!-- Friend 2 -->
+              <div class="friend-item" data-friend-name="Nadia Salsabila" data-friend-avatar="NS" data-friend-status="riding">
+                <div class="friend-profile">
+                  <div class="avatar-wrapper">
+                    <div class="avatar" style="background:#fef3c7;color:#b45309">NS</div>
+                    <span class="status-dot riding" title="Sedang Gowes"></span>
+                  </div>
+                  <div class="friend-detail">
+                    <b>Nadia Salsabila</b>
+                    <span>🚴 Sedang Gowes · 18 km</span>
+                  </div>
+                </div>
+                <div class="friend-actions">
+                  <button class="friend-dm-btn" data-open-dm="Nadia Salsabila" title="Kirim Pesan">💬 Chat</button>
+                </div>
+              </div>
+
+              <!-- Friend 3 -->
+              <div class="friend-item" data-friend-name="Bima Perkasa" data-friend-avatar="BP" data-friend-status="online">
+                <div class="friend-profile">
+                  <div class="avatar-wrapper">
+                    <div class="avatar" style="background:#e0e7ff;color:#4338ca">BP</div>
+                    <span class="status-dot online" title="Online"></span>
+                  </div>
+                  <div class="friend-detail">
+                    <b>Bima Perkasa</b>
+                    <span>🟢 Online · Roadbike Trainer</span>
+                  </div>
+                </div>
+                <div class="friend-actions">
+                  <button class="friend-dm-btn" data-open-dm="Bima Perkasa" title="Kirim Pesan">💬 Chat</button>
+                </div>
+              </div>
+
+              <!-- Friend 4 -->
+              <div class="friend-item" data-friend-name="Dimas Anggara" data-friend-avatar="DA" data-friend-status="offline">
+                <div class="friend-profile">
+                  <div class="avatar-wrapper">
+                    <div class="avatar" style="background:#f1f5f9;color:#475569">DA</div>
+                    <span class="status-dot offline" title="Offline"></span>
+                  </div>
+                  <div class="friend-detail">
+                    <b>Dimas Anggara</b>
+                    <span>⚪ Offline · 3 jam lalu</span>
+                  </div>
+                </div>
+                <div class="friend-actions">
+                  <button class="friend-dm-btn" data-open-dm="Dimas Anggara" title="Kirim Pesan">💬 Chat</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Mabar Card -->
+          <div class="event-card">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:20px">🗓️</span>
+              <div>
+                <h3>Sunday Morning Ride (Mabar 30 km)</h3>
+                <p class="muted sub" style="margin:2px 0 0">Minggu ini · 06.00 WIB · Titik kumpul: Balai Pemuda</p>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+              <span style="font-size:11px;color:var(--green);font-weight:bold">28 pesepeda ikut</span>
+              <button id="joinMabarBtn" class="btn btn-green" style="padding:6px 14px;font-size:11px">Gabung Mabar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: KESEHATAN & CHECKLIST (BERUBAH HIJAU JIKA LENGKAP) -->
+    <section class="panel" id="healthSection" style="margin-top:18px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="detail-type">RIDE WELLNESS</div>
+          <h2 style="font-size:22px;margin-top:6px">Kesehatan & kebugaran gowes</h2>
+          <p class="muted sub">Persiapkan tubuh, cek peralatan keselamatan, dan pantau durasi aktivitas.</p>
+        </div>
+        <span style="background:var(--pale);color:var(--green);padding:7px 12px;border-radius:20px;font-size:11px;font-weight:bold">💚 Gowes Lebih Sehat & Aman</span>
+      </div>
+
+      <div class="health-banner">
+        <b style="font-size:14px">Sebelum mulai, utamakan keselamatan dan kondisi tubuh</b>
+        <p class="sub muted" style="margin-top:6px">Lengkapi semua checklist keselamatan sebelum berangkat untuk memastikan gowes yang bebas kendala.</p>
+      </div>
+
+      <div class="health-grid">
+        <!-- BAGIAN CHECKLIST SEBELUM GOWES (JIKA SEMUA CHECKLIST CENTANG -> JADI HIJAU) -->
+        <div class="health-card checklist-card-active" id="checklistCard">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+            <h3>✅ Checklist sebelum gowes</h3>
+            <span class="checklist-success-badge" id="checklistBadge">🎉 Siap Berangkat!</span>
+          </div>
+          <p id="checklistDesc">Tandai semua persiapan. Bila lengkap, kotak akan berwarna hijau aman.</p>
+          
+          <div class="checklist">
+            <label class="checkrow"><input type="checkbox" class="health-check"> Helm terpasang pas & terkunci kencang</label>
+            <label class="checkrow"><input type="checkbox" class="health-check"> Rem depan & belakang pakem berfungsi</label>
+            <label class="checkrow"><input type="checkbox" class="health-check"> Tekanan angin ban & kondisi rantai prima</label>
+            <label class="checkrow"><input type="checkbox" class="health-check"> Membawa botol air minum & identitas/alat</label>
+            <label class="checkrow"><input type="checkbox" class="health-check"> Lampu sepeda / reflektor & cek cuaca rute</label>
+          </div>
+          
+          <div class="check-progress-bar-wrap">
+            <div id="checkProgressBar" class="check-progress-bar"></div>
+          </div>
+          <p id="checkProgress" style="margin-top:10px;font-weight:bold;color:var(--green)">0 dari 5 persiapan selesai</p>
+        </div>
+
+        <!-- Pengingat Minum -->
+        <div class="health-card">
+          <h3>💧 Pengingat hidrasi</h3>
+          <p>Catat asupan air yang sudah diminum sebelum & selama bersepeda.</p>
+          <div class="water-count"><span id="waterCount">0</span> <span style="font-size:13px;font-weight:600">gelas</span></div>
+          <div class="health-actions">
+            <button id="waterMinus" class="pill">− Kurangi</button>
+            <button id="waterPlus" class="btn btn-green">+ Tambah 1 gelas</button>
+            <button id="waterReset" class="pill">Reset</button>
+          </div>
+        </div>
+
+        <!-- Timer Gowes -->
+        <div class="health-card">
+          <h3>⏱️ Timer gowes</h3>
+          <p>Gunakan untuk mencatat durasi gowes secara real-time.</p>
+          <div id="rideTimer" class="timer">00:00:00</div>
+          <div class="health-actions">
+            <button id="timerStart" class="btn btn-green">▶ Mulai</button>
+            <button id="timerPause" class="pill">Ⅱ Jeda</button>
+            <button id="timerReset" class="pill">↺ Reset</button>
+            <button id="timerFinishRide" class="pill" style="border-color:#16a34a;color:#166534;font-weight:bold">🏁 Selesai & Simpan</button>
+          </div>
+          <p id="timerStatus" style="margin-top:9px" class="muted sub">Timer belum dimulai.</p>
+        </div>
+
+        <!-- Perkiraan Energi -->
+        <div class="health-card">
+          <h3>🔥 Perkiraan energi terbakar</h3>
+          <p>Estimasi kalori berdasarkan durasi bersepeda aktif.</p>
+          <div class="water-count"><span id="energyLow">0</span>–<span id="energyHigh">0</span> <span style="font-size:13px;font-weight:600">kkal</span></div>
+          <p>Pembakaran kalori bervariasi bergantung berat badan, elevasi jalan, dan kecepatan rata-rata.</p>
+        </div>
+      </div>
+
+      <div class="health-grid">
+        <div class="health-card">
+          <h3>🧘 Pemanasan & peregangan</h3>
+          <p>Lakukan pemanasan dinamis 5 menit untuk otot tungkai, lutut, dan pinggul sebelum mengayuh pedal. Lakukan peregangan statis setelah selesai berolahraga.</p>
+        </div>
+        <div class="health-card">
+          <h3>🌤️ Tips gowes jarak jauh (20–50 km)</h3>
+          <p>Untuk rute di atas 20 km, konsumsi cairan berkala setiap 20–30 menit, jaga ritme kayuhan stabil (kadensi 70-85 RPM), dan bawa camilan karbohidrat.</p>
+        </div>
+      </div>
+
+      <div class="health-disclaimer">
+        <b>Catatan kesehatan:</b> PedalPath merupakan prototipe panduan perjalanan bersepeda dan bukan pengganti saran medis profesional. Hentikan bersepeda jika merasa pusing berlebih atau sesak napas.
+      </div>
+    </section>
+
+    <footer>
+      PedalPath © 2026 · Solusi Lengkap Rute, Komunitas & Keselamatan Bersepeda<br>
+      Rencanakan perjalanan dengan bijak. Utamakan keselamatan di setiap kayuhan.
+    </footer>
+  </main>
+
+  <!-- ======== MODAL PROFIL & STATISTIK PENGGUNA ======== -->
+  <div class="profile-modal-overlay hide" id="profileModal">
+    <div class="profile-modal-card">
+      <div class="profile-banner">
+        <button class="profile-modal-close" id="closeProfileModalBtn" title="Tutup">✕</button>
+      </div>
+      <div class="profile-header-body">
+        <div class="profile-photo-lg-wrap">
+          <svg class="profile-photo-lg default-avatar-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="16" fill="#e2e8f0"/>
+            <circle cx="16" cy="11.5" r="5" fill="#94a3b8"/>
+            <path d="M6 26.5C6 21.5 10.5 19 16 19C21.5 19 26 21.5 26 26.5" fill="#94a3b8"/>
+          </svg>
+          <span class="profile-status-online-lg"></span>
+        </div>
+        <div class="profile-user-titles">
+          <h3>Prototype</h3>
+          <span>@proto.type · Surabaya · Roadbike & Gravel Enthusiast</span>
+          <p style="font-size:12px;color:var(--text);margin:6px 0 0;line-height:1.5">
+            "Pecinta udara pagi dan jalanan aspal mulus. Target tahun ini: tembus 1.000 km dan menyelesaikan Gran Fondo 100K!"
+          </p>
+        </div>
+
+        <!-- Banner Kapan Terakhir Kali Gowes -->
+        <div class="last-ride-banner">
+          <div class="last-ride-banner-icon">⏱️</div>
+          <div>
+            <span style="font-size:11px;font-weight:bold;color:var(--green)">TERAKHIR KALI GOWES</span>
+            <b style="display:block;font-size:14px;color:var(--text)" id="profileLastRideTime">Hari ini, 06:30 WIB (15.2 km)</b>
+            <span style="font-size:11px;color:var(--muted)">Rute: Loop Santai Taman Kota · Cuaca Cerah</span>
+          </div>
+        </div>
+
+        <!-- Statistik Kunci Lengkap -->
+        <div class="profile-section-title">📊 Statistik Bersepeda Saya</div>
+        <div class="profile-stats-grid">
+          <div class="profile-stat-box">
+            <span>Total Jarak</span>
+            <b id="profileTotalKm">348,5 km</b>
+          </div>
+          <div class="profile-stat-box">
+            <span>Total Durasi</span>
+            <b id="profileTotalHours">19j 24m</b>
+          </div>
+          <div class="profile-stat-box">
+            <span>Kalori Terbakar</span>
+            <b id="profileTotalCalories">8.420 kkal</b>
+          </div>
+          <div class="profile-stat-box">
+            <span>Kecepatan Rata²</span>
+            <b>21,4 km/j</b>
+          </div>
+          <div class="profile-stat-box">
+            <span>Gowes Terjauh</span>
+            <b>50,0 km</b>
+          </div>
+          <div class="profile-stat-box">
+            <span>Elevasi Daki</span>
+            <b>+1.850 m</b>
+          </div>
+        </div>
+
+        <div class="profile-section-title">🚲 Sepeda & Perlengkapan</div>
+        <div style="background:#f9fbf8;border:1px solid #e2eae0;border-radius:12px;padding:10px 14px;font-size:12px;margin-bottom:14px">
+          <b>Polygon Strattos S5 Disc (Roadbike)</b><br>
+          <span class="muted">Helm Giro Agilis MIPS · Sensor Kadensi Bluetooth</span>
+        </div>
+
+        <div class="profile-section-title">🏅 Lencana & Penghargaan</div>
+        <div class="badges-row">
+          <span class="badge-chip">🏆 Gran Fondo 50K</span>
+          <span class="badge-chip">🛡️ Safety Master</span>
+          <span class="badge-chip">💧 Hydration Pro</span>
+          <span class="badge-chip">🌅 Early Bird</span>
+          <span class="badge-chip">⚡ Speed Demon 35km/h</span>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button id="simRideBtn" class="btn btn-green" style="flex:1;padding:9px;font-size:12px">+ Catat Gowes Hari Ini (+10 km)</button>
+          <button id="closeProfileModalBottom" class="pill" style="padding:9px 16px;font-size:12px">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== INSTAGRAM-STYLE DIRECT MESSAGE (PILL DI KANAN BAWAH) ======== -->
+  <div class="ig-dm-pill-container" id="dmContainer">
+    <!-- Chat Window (Pop-up Drawer) -->
+    <div class="ig-dm-window hide" id="dmWindow">
+      <!-- DM Header -->
+      <div class="ig-dm-header">
+        <div class="ig-dm-header-title">
+          <button id="dmBackBtn" class="dm-icon-btn hide" title="Kembali ke daftar pesan">←</button>
+          <span id="dmTitleText">Direct Messages</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <button id="dmMinimizeBtn" class="dm-icon-btn" title="Kecilkan pesan">−</button>
+          <button id="dmCloseBtn" class="dm-icon-btn" title="Tutup">✕</button>
+        </div>
+      </div>
+
+      <div class="ig-dm-body">
+        <!-- View 1: Threads Inbox -->
+        <div class="dm-threads-view" id="dmInboxView">
+          <div style="padding:4px 8px 8px">
+            <input type="text" id="dmSearchFriend" class="field" placeholder="Cari pesan atau teman..." style="padding:6px 10px;font-size:11px">
+          </div>
+          <div id="dmThreadsContainer">
+            <!-- Threads rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- View 2: Active Chat -->
+        <div class="dm-chat-view hide" id="dmActiveChatView">
+          <div class="dm-chat-messages" id="dmMessagesBox">
+            <!-- Chat bubbles rendered dynamically -->
+          </div>
+          <div id="dmTypingIndicator" class="dm-typing hide">Teman sedang mengetik...</div>
+          
+          <!-- Quick Replies / Prompts -->
+          <div class="dm-quick-prompts">
+            <button type="button" data-quick="Besok gowes bareng jam 06.00 pagi ya? 🚴">"Besok gowes jam 6?"</button>
+            <button type="button" data-quick="Mau coba rute 20 km atau 30 km nih?">"Pilih rute 20 atau 30 km?"</button>
+            <button type="button" data-quick="Siap meluncur, checklist sudah hijau semua! ✅">"Checklist sudah hijau!"</button>
+          </div>
+
+          <form class="dm-input-area" id="dmChatForm">
+            <input type="text" id="dmInputMessage" placeholder="Kirim pesan langsung..." autocomplete="off">
+            <button type="submit" class="dm-send-btn" title="Kirim Pesan">➤</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instagram Floating Pill Button -->
+    <button class="ig-dm-pill" id="dmPillBtn" aria-label="Buka Direct Message Instagram Style">
+      <div class="ig-dm-pill-avatars">
+        <span class="ig-mini-avatar" style="background:#16a34a">🚴</span>
+        <span class="ig-mini-avatar" style="background:#2563eb;margin-left:-8px">🚵</span>
+      </div>
+      <span>Direct Message</span>
+      <span class="ig-dm-badge" id="dmUnreadBadge">2</span>
+    </button>
+  </div>
+
+  <script>
+    // DATA RUTE LENGKAP: 5 KM SAMPAI 50 KM DENGAN BERBAGAI KATEGORI & ELEVASI
+    const routes = [
+      {
+        id: 1,
+        name: 'Loop Santai Taman Kota',
+        type: 'Santai',
+        distance: 5,
+        time: 22,
+        level: 'Mudah',
+        elevation: '+15 m',
+        desc: 'Rute rileks mengelilingi taman kota dengan pepohonan rindang dan jalur khusus sepeda bebas polusi.',
+        end: 'Taman Kota Utama',
+        shape: 'M40 183 Q70 165 100 128 T190 108 T270 60'
+      },
+      {
+        id: 2,
+        name: 'Gowes Kuliner Heritage & Kota Tua',
+        type: 'Santai',
+        distance: 7,
+        time: 32,
+        level: 'Mudah',
+        elevation: '+20 m',
+        desc: 'Menyusuri jalan berbatu peninggalan bersejarah, spot foto estetik, dan pusat sarapan legendaris.',
+        end: 'Kawasan Kota Lama',
+        shape: 'M40 183 Q85 140 130 150 T220 110 T270 60'
+      },
+      {
+        id: 3,
+        name: 'Sirkuit Kebugaran Loop Pagi',
+        type: 'Olahraga',
+        distance: 10,
+        time: 35,
+        level: 'Sedang',
+        elevation: '+35 m',
+        desc: 'Lintasan beraspal mulus mengitari kompleks stadion kota untuk menjaga detak jantung dan kadensi stabil.',
+        end: 'Gelanggang Olahraga',
+        shape: 'M40 183 Q90 100 160 140 T230 85 T270 60'
+      },
+      {
+        id: 4,
+        name: 'Sunset Breeze Boulevard',
+        type: 'Santai',
+        distance: 12,
+        time: 48,
+        level: 'Mudah',
+        elevation: '+25 m',
+        desc: 'Gowes sore hari dengan angin sepoi-sepoi melintasi jalan boulevard hijau berpenataan rapi.',
+        end: 'Taman Senja Panorama',
+        shape: 'M40 183 Q110 190 150 120 T240 130 T270 60'
+      },
+      {
+        id: 5,
+        name: 'Jelajah Pesisir Pantai & Jembatan',
+        type: 'Jelajah',
+        distance: 15,
+        time: 60,
+        level: 'Sedang',
+        elevation: '+40 m',
+        desc: 'Menyusuri garis pantai dengan pemandangan ombak, perahu nelayan, serta melintasi jembatan ikonik.',
+        end: 'Jembatan Pesisir Megah',
+        shape: 'M40 183 Q100 205 125 130 T235 115 T270 60'
+      },
+      {
+        id: 6,
+        name: 'Eksplorasi Riverfront & Kanal Kota',
+        type: 'Jelajah',
+        distance: 20,
+        time: 75,
+        level: 'Sedang',
+        elevation: '+50 m',
+        desc: 'Mengikuti alur sungai dan kanal alami dengan suasana hijau, jembatan gantung, dan rest area asri.',
+        end: 'Dermaga Riverfront Park',
+        shape: 'M40 183 Q80 70 140 130 T210 160 T270 60'
+      },
+      {
+        id: 7,
+        name: 'Tantangan Interval Speed & Cardio',
+        type: 'Olahraga',
+        distance: 25,
+        time: 78,
+        level: 'Menengah',
+        elevation: '+85 m',
+        desc: 'Kombinasi jalan datar dan tanjakan landai untuk meningkatkan daya tahan kardiovaskular secara intens.',
+        end: 'Boulevard Lingkar Luar',
+        shape: 'M40 183 Q70 80 150 135 T235 170 T270 60'
+      },
+      {
+        id: 8,
+        name: 'Jelajah Agrowisata & Danau Asri',
+        type: 'Jelajah',
+        distance: 30,
+        time: 98,
+        level: 'Menengah',
+        elevation: '+110 m',
+        desc: 'Keluar dari kepadatan kota menuju pedesaan, perkebunan buah, dan pemandangan danau alami yang tenang.',
+        end: 'Kawasan Wisata Danau Alam',
+        shape: 'M40 183 Q100 40 170 120 T245 50 T270 60'
+      },
+      {
+        id: 9,
+        name: 'Rute Bukit & Tanjakan Menantang',
+        type: 'Olahraga',
+        distance: 35,
+        time: 120,
+        level: 'Berat',
+        elevation: '+240 m',
+        desc: 'Elevasi menanjak bertahap melatih daya tahan otot paha dan kayuhan tanjakan dengan panorama lembah.',
+        end: 'Puncak Gardu Pandang',
+        shape: 'M40 183 Q90 30 155 120 T240 30 T270 60'
+      },
+      {
+        id: 10,
+        name: 'Endurance Lintas Jalur Selatan',
+        type: 'Olahraga',
+        distance: 40,
+        time: 135,
+        level: 'Berat',
+        elevation: '+180 m',
+        desc: 'Jarak panjang konsisten melatih endurance fisik untuk persiapan touring atau event balap sepeda.',
+        end: 'Check Point Lintas Kota',
+        shape: 'M40 183 Q60 140 130 70 T220 150 T270 60'
+      },
+      {
+        id: 11,
+        name: 'Mini Gran Fondo Pedesaan & Kaki Bukit',
+        type: 'Jelajah',
+        distance: 45,
+        time: 150,
+        level: 'Sangat Berat',
+        elevation: '+310 m',
+        desc: 'Petualangan sepeda mengarungi pematang sawah, perbukitan hijau, dan udara segar alam terbuka.',
+        end: 'Desa Wisata Kaki Bukit',
+        shape: 'M40 183 Q120 20 180 140 T250 40 T270 60'
+      },
+      {
+        id: 12,
+        name: 'Epic Century Ultra Loop 50K',
+        type: 'Olahraga',
+        distance: 50,
+        time: 165,
+        level: 'Sangat Berat',
+        elevation: '+350 m',
+        desc: 'Uji batas kemampuan maksimal hingga 50 km! Melewati semua karakter medan dari kota, pesisir, hingga bukit.',
+        end: 'Gerbang Monumental Lingkar Raya',
+        shape: 'M40 183 Q80 20 160 160 T250 20 T270 60'
+      }
+    ];
+
+    // DATA RIWAYAT RUTE GOWES
+    let rideHistory = [
+      {
+        id: 101,
+        title: 'Loop Santai Taman Kota & Sarapan Pagi',
+        date: 'Hari ini, 06:30 WIB',
+        distance: 15.2,
+        duration: '48 menit',
+        avgSpeed: '19.0 km/j',
+        calories: 320,
+        routeId: 1
+      },
+      {
+        id: 102,
+        title: 'Tantangan Interval Speed 25 km',
+        date: '8 Oktober 2026, 05:45 WIB',
+        distance: 25.4,
+        duration: '1 jam 12 mnt',
+        avgSpeed: '21.2 km/j',
+        calories: 540,
+        routeId: 7
+      },
+      {
+        id: 103,
+        title: 'Sunset Breeze Boulevard & Pantai',
+        date: '5 Oktober 2026, 16:20 WIB',
+        distance: 18.0,
+        duration: '55 menit',
+        avgSpeed: '19.6 km/j',
+        calories: 390,
+        routeId: 4
+      },
+      {
+        id: 104,
+        title: 'Gran Fondo Mini Century Weekend',
+        date: '1 Oktober 2026, 06:00 WIB',
+        distance: 50.0,
+        duration: '2 jam 45 mnt',
+        avgSpeed: '18.2 km/j',
+        calories: 1150,
+        routeId: 12
+      }
+    ];
+
+    // DATA PESE PEDA DI SEKITAR (RADAR)
+    const nearbyCyclistsData = [
+      {
+        name: 'Budi Pratama',
+        avatar: 'BP',
+        dist: 0.4,
+        status: 'Sedang Gowes (19 km/j)',
+        location: 'Jl. Pemuda arah Timur',
+        bike: 'Roadbike Cervelo',
+        online: true
+      },
+      {
+        name: 'Dian Anggraini',
+        avatar: 'DA',
+        dist: 1.2,
+        status: 'Istirahat di Rest Area',
+        location: 'Taman Prestasi Surabaya',
+        bike: 'Gravel Polygon Bend R',
+        online: true
+      },
+      {
+        name: 'Fajar Ramadhan',
+        avatar: 'FR',
+        dist: 2.1,
+        status: 'Gowes Santai Pagi',
+        location: 'Jalur Boulevard Utama',
+        bike: 'Folding Bike Brompton',
+        online: true
+      },
+      {
+        name: 'Peleton Sunday Morning',
+        avatar: 'PS',
+        dist: 2.8,
+        status: 'Rombongan 6 Pesepeda (24 km/j)',
+        location: 'Kawasan Darmo Car Free Day',
+        bike: 'Roadbike Pelaton',
+        online: true
+      }
+    ];
+
+    let activeType = 'all';
+    let selected = null;
+    let showFav = false;
+    const favorites = new Set([1, 6]);
+    const $ = id => document.getElementById(id);
+
+    // Filter rute
+    function visibleRoutes() {
+      const maxDist = Number($('distanceRange').value);
+      return routes.filter(r => 
+        (activeType === 'all' || r.type === activeType) &&
+        r.distance <= maxDist &&
+        (!showFav || favorites.has(r.id))
+      );
+    }
+
+    // Render daftar rute (Tile Cards: 4 Kolom Lebar ke Kanan)
+    function renderRoutes() {
+      const list = visibleRoutes();
+      $('resultCount').textContent = list.length + ' rute';
+      $('favCount').textContent = favorites.size;
+      $('emptyState').classList.toggle('hide', list.length !== 0);
+      $('routeList').classList.toggle('hide', list.length === 0);
+      $('favNav').classList.toggle('active', showFav);
+
+      $('routeList').innerHTML = list.map(r => `
+        <article class="route ${selected === r.id ? 'selected' : ''}" data-detail="${r.id}">
+          <div class="route-tile-top">
+            <div class="route-tile-tags">
+              <span class="type-tag tag-${r.type.toLowerCase()}">${r.type}</span>
+              <span class="route-level-tag">${r.level}</span>
+            </div>
+            <button type="button" class="route-fav-btn ${favorites.has(r.id) ? 'active' : ''}" data-fav="${r.id}" title="${favorites.has(r.id) ? 'Hapus favorit' : 'Simpan favorit'}" aria-label="Favorit">
+              ${favorites.has(r.id) ? '❤️' : '🤍'}
+            </button>
+          </div>
+
+          <div class="route-banner">
+            <span class="route-banner-icon">🚴</span>
+            <div class="route-banner-dist">
+              <div class="route-banner-km">${r.distance}</div>
+              <span class="route-banner-unit">KM GOWES</span>
+            </div>
+          </div>
+
+          <div class="route-body">
+            <h3 title="${r.name}">${r.name}</h3>
+            <p class="route-dest" title="${r.end}">🏁 Ke ${r.end || 'Tujuan rute'}</p>
+            <div class="route-meta">
+              <span>⏱️ ${r.time} mnt</span>
+              <span>📈 ${r.elevation}</span>
+              <span>⭐ ${(4.7 + (r.id * 0.05) % 0.3).toFixed(1)}</span>
+            </div>
+          </div>
+
+          <div class="route-actions">
+            <button type="button" class="btn ${selected === r.id ? 'btn-green' : 'btn-outline-green'} route-tile-btn" data-detail="${r.id}">
+              ${selected === r.id ? '✓ Dipilih' : 'Pilih Rute →'}
+            </button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Toggle tampilan layout rute (Horizontal Tile vs Scroll Samping)
+    $('layoutTileBtn').addEventListener('click', () => {
+      $('routeList').classList.remove('scroll-horizontal');
+      $('layoutTileBtn').classList.add('active');
+      $('layoutScrollBtn').classList.remove('active');
+    });
+    $('layoutScrollBtn').addEventListener('click', () => {
+      $('routeList').classList.add('scroll-horizontal');
+      $('layoutScrollBtn').classList.add('active');
+      $('layoutTileBtn').classList.remove('active');
+    });
+
+    // Tampilkan detail rute
+    function showDetail(id) {
+      selected = id;
+      const r = routes.find(x => x.id === id);
+      if (!r) return;
+
+      $('detailPanel').classList.remove('hide');
+      $('detailType').textContent = 'RUTE ' + r.type.toUpperCase();
+      $('detailName').textContent = r.name;
+      $('detailDesc').textContent = r.desc;
+      $('detailDistance').textContent = r.distance + ' km';
+      $('detailTime').textContent = r.time + ' menit';
+      $('detailLevel').textContent = r.level;
+      $('detailElevation').textContent = r.elevation;
+      $('detailFav').textContent = favorites.has(id) ? '♥ Hapus favorit' : '♡ Simpan favorit';
+      $('actionMessage').textContent = '';
+
+      const s = $('start').value.trim() || 'Lokasi awal';
+      $('mapStart').textContent = s;
+      $('mapEndLabel').textContent = r.end;
+      $('mapRoute').setAttribute('d', r.shape);
+      $('mapNote').textContent = `${r.name} · ${r.distance} km · Elevasi ${r.elevation} · Titik akhir: ${r.end}.`;
+
+      renderRoutes();
+      $('detailPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Navigasi Tab Utama
+    $('navRoutes').addEventListener('click', () => {
+      $('routeSection').scrollIntoView({ behavior: 'smooth' });
+      setActiveNavTab('navRoutes');
+    });
+    $('navHistory').addEventListener('click', () => {
+      $('historySection').scrollIntoView({ behavior: 'smooth' });
+      setActiveNavTab('navHistory');
+    });
+    $('navRadar').addEventListener('click', () => {
+      $('radarSection').scrollIntoView({ behavior: 'smooth' });
+      setActiveNavTab('navRadar');
+    });
+    $('navCommunity').addEventListener('click', () => {
+      $('communitySection').scrollIntoView({ behavior: 'smooth' });
+      setActiveNavTab('navCommunity');
+    });
+    $('navHealth').addEventListener('click', () => {
+      $('healthSection').scrollIntoView({ behavior: 'smooth' });
+      setActiveNavTab('navHealth');
+    });
+
+    function setActiveNavTab(tabId) {
+      ['navRoutes', 'navHistory', 'navRadar', 'navCommunity', 'navHealth'].forEach(id => {
+        const el = $(id);
+        if (el) el.classList.toggle('active', id === tabId);
+      });
+    }
+
+    // ======== PENGATURAN SLIDER MULUS (SMOOTH SLIDER ENGINE) ========
+    function updateSliderAppearance(val) {
+      const min = Number($('distanceRange').min) || 5;
+      const max = Number($('distanceRange').max) || 50;
+      const percentage = ((val - min) / (max - min)) * 100;
+      
+      // Update dynamic track gradient for ultra-smooth rendering
+      $('distanceRange').style.background = `linear-gradient(to right, #176b45 0%, #176b45 ${percentage}%, #e2ece0 ${percentage}%, #e2ece0 100%)`;
+      $('distanceBadge').textContent = `Maksimal: ${val} km`;
+
+      // Sync with dropdown if matching option exists
+      const opt = Array.from($('distance').options).find(o => Number(o.value) === Number(val));
+      if (opt) {
+        $('distance').value = val;
+      }
+    }
+
+    $('distanceRange').addEventListener('input', e => {
+      const val = Number(e.target.value);
+      updateSliderAppearance(val);
+      renderRoutes();
+    });
+
+    $('distance').addEventListener('change', e => {
+      const val = Number(e.target.value);
+      $('distanceRange').value = val;
+      updateSliderAppearance(val);
+      renderRoutes();
+    });
+
+    // Inisialisasi awal slider
+    updateSliderAppearance(50);
+
+    // Filter Chips di Hero
+    document.querySelectorAll('[data-filter-chip]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const type = chip.dataset.filterChip;
+        activeType = type;
+        document.querySelectorAll('[data-type]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.type === type);
+        });
+        renderRoutes();
+        $('routeSection').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Filter Tipe Gowes
+    $('typeFilters').addEventListener('click', e => {
+      const b = e.target.closest('[data-type]');
+      if (!b) return;
+      activeType = b.dataset.type;
+      document.querySelectorAll('[data-type]').forEach(x => x.classList.toggle('active', x === b));
+      renderRoutes();
+    });
+
+    // Form Pencarian Rute
+    $('routeForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const s = $('start').value.trim();
+      if (!s) {
+        $('formError').textContent = 'Masukkan lokasi awal terlebih dahulu.';
+        $('formError').classList.remove('hide');
+        return;
+      }
+      $('formError').classList.add('hide');
+      showFav = false;
+      const d = $('destination').value.trim();
+      $('mapStart').textContent = s;
+      $('mapEndLabel').textContent = d || 'Tujuan rute';
+      renderRoutes();
+
+      const first = visibleRoutes()[0];
+      if (first) {
+        showDetail(first.id);
+      } else {
+        $('detailPanel').classList.add('hide');
+        $('formError').textContent = 'Tidak ada rute yang sesuai filter. Coba geser slider jarak lebih besar.';
+        $('formError').classList.remove('hide');
+      }
+    });
+
+    // Event Klik Kartu Rute & Favorit
+    $('routeList').addEventListener('click', e => {
+      const f = e.target.closest('[data-fav]');
+      const d = e.target.closest('[data-detail]');
+      if (f) {
+        e.stopPropagation();
+        const id = Number(f.dataset.fav);
+        favorites.has(id) ? favorites.delete(id) : favorites.add(id);
+        renderRoutes();
+        if (selected === id) {
+          $('detailFav').textContent = favorites.has(id) ? '💔 Hapus favorit' : '❤️ Simpan favorit';
+        }
+        return;
+      }
+      if (d) {
+        showDetail(Number(d.dataset.detail));
+      }
+    });
+
+    $('favNav').addEventListener('click', () => {
+      showFav = !showFav;
+      renderRoutes();
+      $('routeList').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    $('resetFilters').addEventListener('click', () => {
+      $('distanceRange').value = '50';
+      $('distance').value = '50';
+      updateSliderAppearance(50);
+      activeType = 'all';
+      showFav = false;
+      document.querySelectorAll('[data-type]').forEach(x => x.classList.toggle('active', x.dataset.type === 'all'));
+      renderRoutes();
+    });
+
+    $('closeDetail').addEventListener('click', () => {
+      $('detailPanel').classList.add('hide');
+      selected = null;
+      renderRoutes();
+    });
+
+    $('detailFav').addEventListener('click', () => {
+      if (selected === null) return;
+      favorites.has(selected) ? favorites.delete(selected) : favorites.add(selected);
+      renderRoutes();
+      $('detailFav').textContent = favorites.has(selected) ? '♥ Hapus favorit' : '♡ Simpan favorit';
+      $('actionMessage').textContent = favorites.has(selected) ? 'Rute disimpan di daftar favorit.' : 'Rute dihapus dari favorit.';
+    });
+
+    $('shareRoute').addEventListener('click', async () => {
+      const r = routes.find(x => x.id === selected);
+      if (!r) return;
+      const msg = `🚴 Rute PedalPath: ${r.name} (${r.distance} km) - Estimasi ${r.time} mnt. Elevasi ${r.elevation}. Mari gowes bareng!`;
+      try {
+        await navigator.clipboard.writeText(msg);
+        $('actionMessage').textContent = '✓ Informasi rute berhasil disalin ke clipboard.';
+      } catch (e) {
+        $('actionMessage').textContent = msg;
+      }
+    });
+
+    $('ajakTemanBtn').addEventListener('click', () => {
+      const r = routes.find(x => x.id === selected);
+      const name = r ? r.name : 'rute sepeda';
+      openDmWithFriend('Ardi Wijaya', `Halo bro! Besok mau coba gowes "${name}" bareng gak?`);
+    });
+
+    /* ==============================================================
+       FITUR 1: RIWAYAT RUTE PERJALANAN (RENDER & LOGIKA)
+    ============================================================== */
+    function renderHistoryList() {
+      const container = $('historyListContainer');
+      container.innerHTML = '';
+
+      let totalKm = 0;
+      let totalCal = 0;
+
+      rideHistory.forEach(item => {
+        totalKm += item.distance;
+        totalCal += item.calories;
+
+        const card = document.createElement('div');
+        card.className = 'history-item';
+        card.innerHTML = `
+          <div class="history-icon-box">🚴</div>
+          <div class="history-main-info">
+            <b>${item.title}</b>
+            <div class="history-meta">
+              <span>📅 ${item.date}</span>
+              <span>📏 <b>${item.distance} km</b></span>
+              <span>⏱️ ${item.duration}</span>
+              <span>⚡ ${item.avgSpeed}</span>
+              <span>🔥 ${item.calories} kkal</span>
+              <span class="history-tag">✓ Terverifikasi</span>
+            </div>
+          </div>
+          <div class="history-actions">
+            <button class="pill" data-repeat-history="${item.routeId}" style="font-size:11px;padding:6px 12px">Lihat Rute ↗</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Update ringkasan riwayat
+      $('histTotalDist').textContent = totalKm.toFixed(1) + ' km';
+      $('histTotalRides').textContent = rideHistory.length + ' Gowes';
+      $('histTotalCalories').textContent = totalCal.toLocaleString() + ' kkal';
+    }
+
+    $('historyListContainer').addEventListener('click', e => {
+      const btn = e.target.closest('[data-repeat-history]');
+      if (btn) {
+        const rId = Number(btn.dataset.repeatHistory);
+        showDetail(rId);
+        $('detailPanel').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    $('addNewHistoryBtn').addEventListener('click', () => {
+      const dist = prompt('Masukkan jarak gowes yang baru selesai (km):', '12.5');
+      if (!dist || isNaN(dist)) return;
+      
+      const newRide = {
+        id: Date.now(),
+        title: 'Gowes Rekreasi Hari Ini',
+        date: 'Baru saja',
+        distance: parseFloat(dist),
+        duration: Math.round(dist * 3.5) + ' menit',
+        avgSpeed: '19.5 km/j',
+        calories: Math.round(dist * 22),
+        routeId: 1
+      };
+      rideHistory.unshift(newRide);
+      renderHistoryList();
+      alert(`✓ Aktivitas gowes ${dist} km berhasil dicatat ke riwayat perjalanan!`);
+    });
+
+    /* ==============================================================
+       FITUR 2: MENCARI SESAMA PESE PEDA DI SEKITAR (RADAR ENGINE)
+    ============================================================== */
+    function renderNearbyCyclists(radiusLimit = 5) {
+      const list = $('nearbyCyclistsList');
+      list.innerHTML = '';
+
+      const filtered = nearbyCyclistsData.filter(c => c.dist <= radiusLimit);
+
+      filtered.forEach(cyclist => {
+        const item = document.createElement('div');
+        item.className = 'nearby-cyclist-card';
+        item.innerHTML = `
+          <div class="nearby-cyclist-left">
+            <div class="nearby-avatar">
+              ${cyclist.avatar}
+              <span class="status-dot online"></span>
+            </div>
+            <div>
+              <b style="font-size:13px;display:block">${cyclist.name}</b>
+              <span style="font-size:11px;color:var(--muted)">${cyclist.status} · ${cyclist.location}</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="nearby-badge-dist">${cyclist.dist} km</span>
+            <button class="pill" data-sapa-cyclist="${cyclist.name}" style="padding:5px 10px;font-size:11px;font-weight:bold;color:var(--green)">
+              💬 Sapa / Ajak
+            </button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    $('nearbyCyclistsList').addEventListener('click', e => {
+      const btn = e.target.closest('[data-sapa-cyclist]');
+      if (btn) {
+        const name = btn.dataset.sapaCyclist;
+        openDmWithFriend(name, `Halo ${name}, kulihat posisimu lagi dekat nih! Mau gowes bareng? 🚴`);
+      }
+    });
+
+    document.querySelectorAll('[data-radius]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-radius]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const r = Number(btn.dataset.radius);
+        renderNearbyCyclists(r);
+      });
+    });
+
+    $('radarScanBtn').addEventListener('click', () => {
+      $('radarStatusText').textContent = 'Memindai area sekitar...';
+      $('radarScanBtn').textContent = '⏳ Memindai...';
+      setTimeout(() => {
+        renderNearbyCyclists(5);
+        $('radarStatusText').textContent = 'Baru saja diperbarui';
+        $('radarScanBtn').textContent = '🔄 Pindai Ulang';
+        alert('✓ Radar diperbarui: 4 pesepeda aktif terdeteksi di radius 5 km.');
+      }, 700);
+    });
+
+    /* ==============================================================
+       FITUR 3: MODAL PROFIL & STATISTIK PENGGUNA LENGKAP
+    ============================================================== */
+    const profileModal = $('profileModal');
+
+    $('profileBtn').addEventListener('click', () => {
+      profileModal.classList.remove('hide');
+    });
+
+    $('closeProfileModalBtn').addEventListener('click', () => {
+      profileModal.classList.add('hide');
+    });
+
+    $('closeProfileModalBottom').addEventListener('click', () => {
+      profileModal.classList.add('hide');
+    });
+
+    profileModal.addEventListener('click', e => {
+      if (e.target === profileModal) profileModal.classList.add('hide');
+    });
+
+    // Tombol Simulasi Catat Gowes Hari Ini
+    $('simRideBtn').addEventListener('click', () => {
+      const currentKm = 348.5;
+      const newKm = (currentKm + 10).toFixed(1);
+      $('profileTotalKm').textContent = newKm + ' km';
+      $('profileLastRideTime').textContent = 'Hari ini, Baru saja (+10 km)';
+      
+      // Tambahkan ke riwayat
+      rideHistory.unshift({
+        id: Date.now(),
+        title: 'Gowes Sore Tambahan 10 km',
+        date: 'Hari ini, Baru saja',
+        distance: 10.0,
+        duration: '32 menit',
+        avgSpeed: '18.8 km/j',
+        calories: 220,
+        routeId: 1
+      });
+      renderHistoryList();
+      alert(`🎉 Selamat! Kamu telah menambahkan 10 km hari ini. Total jarakmu kini mencapai ${newKm} km!`);
+    });
+
+    /* ==============================================================
+       CHECKLIST SEBELUM GOWES (JIKA SEMUA CHECKLIST -> JADI HIJAU)
+    ============================================================== */
+    const checkboxes = document.querySelectorAll('.health-check');
+    const checklistCard = $('checklistCard');
+    const checkProgress = $('checkProgress');
+    const checkProgressBar = $('checkProgressBar');
+    const checklistDesc = $('checklistDesc');
+
+    function updateChecklistStatus() {
+      const total = checkboxes.length;
+      const checkedCount = [...checkboxes].filter(b => b.checked).length;
+      const percentage = (checkedCount / total) * 100;
+      
+      checkProgressBar.style.width = `${percentage}%`;
+
+      if (checkedCount === total) {
+        // SEMUA DICENTANG: UBAH TAMPILAN MENJADI WARNA HIJAU CERIA!
+        checklistCard.classList.add('all-completed');
+        checkProgress.innerHTML = `🎉 <b>5 dari 5 persiapan selesai</b> — Luar biasa, sepedamu siap gowes!`;
+        checkProgress.style.color = '#15803d';
+        checklistDesc.textContent = 'Semua perlengkapan keselamatan telah terverifikasi aman!';
+      } else {
+        // BELUM LENGKAP: WARNA STANDAR
+        checklistCard.classList.remove('all-completed');
+        checkProgress.textContent = `${checkedCount} dari ${total} persiapan selesai`;
+        checkProgress.style.color = 'var(--green)';
+        checklistDesc.textContent = 'Tandai semua persiapan. Bila lengkap, kotak akan berwarna hijau aman.';
+      }
+    }
+
+    checkboxes.forEach(box => box.addEventListener('change', updateChecklistStatus));
+
+    // Hidrasi & Timer Kebugaran
+    let waterGlasses = 0, rideSeconds = 0, timerHandle = null, timerRunning = false;
+
+    function formatTime(total) {
+      const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+      return [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+    }
+
+    function updateTimerDisplay() {
+      $('rideTimer').textContent = formatTime(rideSeconds);
+      $('energyLow').textContent = Math.round(rideSeconds / 60 * 4);
+      $('energyHigh').textContent = Math.round(rideSeconds / 60 * 8);
+    }
+
+    $('waterPlus').addEventListener('click', () => { waterGlasses++; $('waterCount').textContent = waterGlasses; });
+    $('waterMinus').addEventListener('click', () => { waterGlasses = Math.max(0, waterGlasses - 1); $('waterCount').textContent = waterGlasses; });
+    $('waterReset').addEventListener('click', () => { waterGlasses = 0; $('waterCount').textContent = waterGlasses; });
+
+    $('timerStart').addEventListener('click', () => {
+      if (timerRunning) return;
+      timerRunning = true;
+      $('timerStatus').textContent = 'Timer sedang berjalan aktif 🚴';
+      timerHandle = setInterval(() => { rideSeconds++; updateTimerDisplay(); }, 1000);
+    });
+
+    $('timerPause').addEventListener('click', () => {
+      if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+      timerRunning = false;
+      $('timerStatus').textContent = rideSeconds ? 'Timer dijeda.' : 'Timer belum dimulai.';
+    });
+
+    $('timerReset').addEventListener('click', () => {
+      if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+      timerRunning = false;
+      rideSeconds = 0;
+      updateTimerDisplay();
+      $('timerStatus').textContent = 'Timer direset.';
+    });
+
+    $('timerFinishRide').addEventListener('click', () => {
+      if (rideSeconds < 10) {
+        alert('Gowes minimal beberapa saat sebelum menyimpan ke riwayat.');
+        return;
+      }
+      const dur = formatTime(rideSeconds);
+      const estKm = (rideSeconds / 180).toFixed(1);
+      const estKcal = Math.round(rideSeconds / 60 * 6);
+
+      rideHistory.unshift({
+        id: Date.now(),
+        title: 'Sesi Gowes Mandiri Timer',
+        date: 'Hari ini, Baru saja',
+        distance: parseFloat(estKm) || 2.0,
+        duration: dur,
+        avgSpeed: '19.2 km/j',
+        calories: estKcal,
+        routeId: 1
+      });
+      renderHistoryList();
+
+      if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+      timerRunning = false;
+      rideSeconds = 0;
+      updateTimerDisplay();
+      $('timerStatus').textContent = 'Sesi gowes berhasil disimpan ke riwayat!';
+      alert(`🎉 Sesi gowes selesai (${dur}) berhasil dicatat ke Riwayat Rute Perjalanan!`);
+    });
+
+    /* ==============================================================
+       FITUR KOMUNITAS (FEED, POSTINGAN, LIKES, GABUNG MABAR)
+    ============================================================== */
+    $('publishPostBtn').addEventListener('click', () => {
+      const content = $('postInput').value.trim();
+      if (!content) {
+        alert('Tulis cerita gowesmu terlebih dahulu.');
+        return;
+      }
+      
+      const newPost = document.createElement('article');
+      newPost.className = 'post-card';
+      newPost.innerHTML = `
+        <div class="post-author">
+          <div class="author-avatar" style="background:#176b45;color:white">PT</div>
+          <div class="author-info">
+            <b>Prototype</b>
+            <span>Baru saja · Komunitas PedalPath</span>
+          </div>
+          <span class="post-badge" style="background:#dcfce7;color:#166534">Baru</span>
+        </div>
+        <p class="post-content">${content}</p>
+        <div class="post-footer">
+          <button class="post-btn" data-like-btn><span class="like-heart">♥</span> <span class="like-num">1</span> Suka</button>
+          <button class="post-btn" data-comment-btn>💬 0 Komentar</button>
+          <button class="post-btn" data-share-post-btn>↗ Bagikan</button>
+        </div>
+      `;
+
+      $('postFeedList').prepend(newPost);
+      $('postInput').value = '';
+    });
+
+    $('addRouteTagBtn').addEventListener('click', () => {
+      $('postInput').value += ' 📍 [Rute: ' + (selected ? routes.find(x => x.id === selected).name : 'Loop Kota 15 km') + '] ';
+      $('postInput').focus();
+    });
+
+    $('addPhotoSimBtn').addEventListener('click', () => {
+      $('postInput').value += ' 📷 [Foto gowes pagi terlampir] ';
+      $('postInput').focus();
+    });
+
+    // Delegasi Suka Postingan
+    $('postFeedList').addEventListener('click', e => {
+      const likeBtn = e.target.closest('[data-like-btn]');
+      if (likeBtn) {
+        likeBtn.classList.toggle('liked');
+        const numSpan = likeBtn.querySelector('.like-num');
+        let count = parseInt(numSpan.textContent);
+        if (likeBtn.classList.contains('liked')) {
+          numSpan.textContent = count + 1;
+        } else {
+          numSpan.textContent = Math.max(0, count - 1);
+        }
+      }
+      const commentBtn = e.target.closest('[data-comment-btn]');
+      if (commentBtn) {
+        const comment = prompt('Tulis komentar untuk postingan ini:');
+        if (comment) alert('Komentar terkirim: "' + comment + '"');
+      }
+      const shareBtn = e.target.closest('[data-share-post-btn]');
+      if (shareBtn) {
+        alert('Tautan postingan berhasil dibagikan ke teman!');
+      }
+    });
+
+    $('joinMabarBtn').addEventListener('click', function() {
+      if (this.textContent === 'Gabung Mabar') {
+        this.textContent = '✓ Terdaftar Mabar';
+        this.style.background = '#15803d';
+        alert('Selamat! Kamu terdaftar di Sunday Morning Ride 30 km. Jangan lupa cek checklist persiapan!');
+      } else {
+        this.textContent = 'Gabung Mabar';
+        this.style.background = 'var(--green)';
+      }
+    });
+
+    /* ==============================================================
+       INSTAGRAM-STYLE DIRECT MESSAGE (PILL DI KANAN BAWAH)
+    ============================================================== */
+    const conversations = {
+      'Ardi Wijaya': {
+        name: 'Ardi Wijaya',
+        avatar: 'AW',
+        status: 'Online',
+        unread: 1,
+        messages: [
+          { sender: 'them', text: 'Halo bro! Besok pagi jadi gowes bareng rute 25 km?' },
+          { sender: 'me', text: 'Siap bro, rencananya kumpul jam 06.00 WIB ya.' },
+          { sender: 'them', text: 'Mantap! Ajak Bima juga, jalur aspalnya baru dihalusin.' }
+        ]
+      },
+      'Nadia Salsabila': {
+        name: 'Nadia Salsabila',
+        avatar: 'NS',
+        status: 'Sedang Gowes (18 km)',
+        unread: 1,
+        messages: [
+          { sender: 'them', text: 'Tadi aku coba rute Sunset Boulevard, asik banget adem!' },
+          { sender: 'me', text: 'Wah seru, nanti sore boleh tuh dicoba lagi.' }
+        ]
+      },
+      'Bima Perkasa': {
+        name: 'Bima Perkasa',
+        avatar: 'BP',
+        status: 'Online',
+        unread: 0,
+        messages: [
+          { sender: 'them', text: 'Bro, ban cadangan sama pompa portable udah siap?' },
+          { sender: 'me', text: 'Aman, checklist sebelum gowes udah hijau semua di PedalPath!' }
+        ]
+      },
+      'Dimas Anggara': {
+        name: 'Dimas Anggara',
+        avatar: 'DA',
+        status: 'Offline',
+        unread: 0,
+        messages: [
+          { sender: 'them', text: 'Minggu depan mau ikut touring 50 km gak?' }
+        ]
+      }
+    };
+
+    let activeChatFriend = null;
+
+    function renderThreads(filter = '') {
+      const container = $('dmThreadsContainer');
+      container.innerHTML = '';
+      
+      let totalUnread = 0;
+      Object.keys(conversations).forEach(friendKey => {
+        const convo = conversations[friendKey];
+        if (convo.unread > 0) totalUnread += convo.unread;
+
+        if (filter && !convo.name.toLowerCase().includes(filter.toLowerCase())) return;
+
+        const lastMsg = convo.messages[convo.messages.length - 1];
+        const item = document.createElement('div');
+        item.className = 'dm-thread-item';
+        item.innerHTML = `
+          <div class="avatar" style="width:34px;height:34px;font-size:13px">${convo.avatar}</div>
+          <div class="dm-thread-content">
+            <div class="dm-thread-header">
+              <b>${convo.name}</b>
+              <span>${convo.unread ? '● Baru' : ''}</span>
+            </div>
+            <div class="dm-thread-msg">${lastMsg ? (lastMsg.sender === 'me' ? 'Anda: ' : '') + lastMsg.text : 'Mulai obrolan'}</div>
+          </div>
+          ${convo.unread ? `<div class="dm-unread-dot"></div>` : ''}
+        `;
+        item.addEventListener('click', () => openChatView(friendKey));
+        container.appendChild(item);
+      });
+
+      $('dmUnreadBadge').textContent = totalUnread;
+      $('dmUnreadBadge').classList.toggle('hide', totalUnread === 0);
+    }
+
+    function openChatView(friendKey) {
+      activeChatFriend = friendKey;
+      const convo = conversations[friendKey];
+      convo.unread = 0;
+      renderThreads();
+
+      $('dmTitleText').textContent = convo.name;
+      $('dmBackBtn').classList.remove('hide');
+      $('dmInboxView').classList.add('hide');
+      $('dmActiveChatView').classList.remove('hide');
+
+      renderChatMessages();
+    }
+
+    function renderChatMessages() {
+      if (!activeChatFriend) return;
+      const convo = conversations[activeChatFriend];
+      const box = $('dmMessagesBox');
+      box.innerHTML = '';
+
+      convo.messages.forEach(msg => {
+        const bubble = document.createElement('div');
+        bubble.className = `dm-bubble ${msg.sender === 'me' ? 'outgoing' : 'incoming'}`;
+        bubble.textContent = msg.text;
+        box.appendChild(bubble);
+      });
+
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function openDmWithFriend(friendName, initialMessage = '') {
+      if (!conversations[friendName]) {
+        conversations[friendName] = {
+          name: friendName,
+          avatar: friendName.split(' ').map(n=>n[0]).join('').slice(0,2),
+          status: 'Online',
+          unread: 0,
+          messages: []
+        };
+      }
+      $('dmWindow').classList.remove('hide');
+      openChatView(friendName);
+
+      if (initialMessage) {
+        $('dmInputMessage').value = initialMessage;
+        $('dmInputMessage').focus();
+      }
+    }
+
+    // Toggle Tombol DM Pill
+    $('dmPillBtn').addEventListener('click', () => {
+      const isHidden = $('dmWindow').classList.contains('hide');
+      if (isHidden) {
+        $('dmWindow').classList.remove('hide');
+        if (!activeChatFriend) {
+          $('dmBackBtn').classList.add('hide');
+          $('dmTitleText').textContent = 'Direct Messages';
+          $('dmInboxView').classList.remove('hide');
+          $('dmActiveChatView').classList.add('hide');
+        }
+      } else {
+        $('dmWindow').classList.add('hide');
+      }
+    });
+
+    $('dmCloseBtn').addEventListener('click', () => $('dmWindow').classList.add('hide'));
+    $('dmMinimizeBtn').addEventListener('click', () => $('dmWindow').classList.add('hide'));
+
+    $('dmBackBtn').addEventListener('click', () => {
+      activeChatFriend = null;
+      $('dmBackBtn').classList.add('hide');
+      $('dmTitleText').textContent = 'Direct Messages';
+      $('dmActiveChatView').classList.add('hide');
+      $('dmInboxView').classList.remove('hide');
+      renderThreads();
+    });
+
+    $('dmSearchFriend').addEventListener('input', e => renderThreads(e.target.value.trim()));
+
+    // Kirim Pesan DM
+    $('dmChatForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const txt = $('dmInputMessage').value.trim();
+      if (!txt || !activeChatFriend) return;
+
+      const convo = conversations[activeChatFriend];
+      convo.messages.push({ sender: 'me', text: txt });
+      $('dmInputMessage').value = '';
+      renderChatMessages();
+
+      // Simulasi Balasan Otomatis Teman Bersepeda (1.2 detik kemudian)
+      $('dmTypingIndicator').classList.remove('hide');
+      setTimeout(() => {
+        $('dmTypingIndicator').classList.add('hide');
+        const replies = [
+          'Siap mantap! Kumpul di titik biasa ya. 🚴',
+          'Oke aman, helm dan botol minum udah siap!',
+          'Gas, besok cuacanya pas banget buat gowes santai.',
+          'Sip, jangan lupa cek checklist persiapan di PedalPath ya bro!'
+        ];
+        const replyText = replies[Math.floor(Math.random() * replies.length)];
+        convo.messages.push({ sender: 'them', text: replyText });
+        renderChatMessages();
+      }, 1200);
+    });
+
+    // Balasan Cepat
+    document.querySelectorAll('[data-quick]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $('dmInputMessage').value = btn.dataset.quick;
+        $('dmInputMessage').focus();
+      });
+    });
+
+    // Tombol Chat di Daftar Teman
+    document.querySelectorAll('[data-open-dm]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.openDm;
+        openDmWithFriend(name);
+      });
+    });
+
+    // Inisialisasi Pertama
+    renderRoutes();
+    renderThreads();
+    renderHistoryList();
+    renderNearbyCyclists(5);
+  </script>
+</body>
+</html>
